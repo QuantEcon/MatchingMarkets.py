@@ -27,11 +27,9 @@ The simulation class has many attributes to simulate static (single period) or d
 When creating the **simulation** class, you can pass the following parameters:
 
       **runs:** int
-
             number of trials when runs
 
       **time_per_run:** int
-
           number of time periods in a run
 
       **max_agents:** int
