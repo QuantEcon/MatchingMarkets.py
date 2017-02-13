@@ -26,16 +26,16 @@ Intended use is through the `simulation` object, as follows:
 The simulation class has many attributes to simulate static (single period) or dynamic (multi-period) matching markets. 
 When creating the **simulation** class, you can pass the following parameters:
 
->       **runs:** int
->             number of trials when runs
->       **time_per_run:** int
->           number of time periods in a run
->       **max_agents:** int
->           maximum number of agents over a run overall
->       **logAllData:** bool
->           log every single period on every iteration
->           Takes much longer, but outputs pretty graphs
->           if false, only logs final results on each run
+      **runs:** int
+            number of trials when runs
+      **time_per_run:** int
+          number of time periods in a run
+      **max_agents:** int
+          maximum number of agents over a run overall
+      **logAllData:** bool
+          log every single period on every iteration
+          Takes much longer, but outputs pretty graphs
+          if false, only logs final results on each run
 
 When running a simulation, you can pass the following arguments to the **run function**:
 
