@@ -3,6 +3,8 @@ Python toolbox for simulation of matching markets in economics. Markets can be s
 
 #Use
 ----------------------------------------------------------------------
+Please refer to the tutorial notebook for more in depth instructions.
+
 Download the package, change directory to the one containing it in your python console, and `import matchingmarkets as mm`.
 
 Intended use is through the `simulation` object, as follows:
@@ -75,26 +77,3 @@ When running a simulation, you can pass the following arguments to the **run fun
 >       one_minus_average_fail_prob: f() -> float[0,1]
 >           cutoff value passed in neighborfct
 >           1 - pr(failure of match) for average of mrkt
-
-The defaults are for a one period market where **insert details**
-
------------------------------------------------------------------------
-#Tutorial
-
-Let's replicate the dynamic market studied in [Akbarpour et al. 2016](https://arxiv.org/abs/1402.3643). The market is multi-period, and implements arbitrary matches according to various matching meta-algorithms (algorithms that decide on time of matching, but not the method of matching). Agents go critical according to draws from a poisson distribution, `time_to_crit=poisson.rvs` with a lambda of 10. Here, to add frictions, we made agents only get utility or be compatible with each other if they are the same type from the `matchUtilFct=mm.utilSameType, neighborFct=mm.neighborSameType` input parameters. Types are drawn at random from one to 5 with `typeGenerator=mm.randomType, numTypes=5`. We test the greedy meta-algorithm with `metaAlgorithm=mm.meta_Greedy`.
-
-    sim = simulation(runs=5, time_per_run=3500, max_agents=5000)
-    sim.run(arrival_rate=3, time_to_crit=poisson.rvs, crit_input=10, algorithm=mm.arbitraryMatch, 
-            metaAlgorithm=mm.meta_Greedy, matchUtilFct=mm.utilSameType, neighborFct=mm.neighborSameType,
-            typeGenerator=mm.randomType, numTypes=5)
-    sim.stats()
-    
-    Simulation Results
-    3500  periods
-    5  runs
-    Stat	  value	 (std dev)
-    ==================================
-    Welfare:   4977.0 ( 6.8411 )
-    matches:   4977.0  ( 6.8411 )
-    perished:  23.6  ( 7.2277 )
-    loss%:     0.0047  ( 0.0014 )
