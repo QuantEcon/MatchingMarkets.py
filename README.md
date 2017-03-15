@@ -7,7 +7,20 @@ Python toolbox for simulation of matching markets in economics.
 - Flexible
 - Expressive
 
-You can use the toolbox to produce simulations of fairly general matching markets. The markets can last one period, or can evolve over many periods. 
+You can use the toolbox to produce simulations of fairly general matching markets. The markets can last one period, or can evolve over many time periods. Here is an example of a graph produced with the package of a market evolving over many periods:
+
+![alt tag](https://raw.githubusercontent.com/VHRanger/matchingmarkets/master/matching%20graph%20example.gif)
+    
+This can be produced with this code:
+
+    import matchingmarkets as mm
+    import numpy.random as rng
+
+    newsim = mm.simulation(time_per_run=100, max_agents=1000)
+    newsim.graph(arrival_rate=15, average_success_prob=lambda: 0.3,
+                 typeGenerator=rng.randint,
+                 neighborFct=mm.stochastic_neighborSameType,
+                 crit_input=3, numTypes=5, plot_time=0.8)
 
 # Use
 ----------------------------------------------------------------------
