@@ -24,14 +24,18 @@ This can be produced with this code:
 
 # Use
 ----------------------------------------------------------------------
-Please refer to the tutorial notebook for more in depth instructions.
+Please refer to the [tutorial notebook]() for more in depth instructions.
 
 Download the package, change directory to the one containing it in your python console, and `import matchingmarkets as mm`.
 
 Intended use is through the `simulation` object, as follows:
 
-    newsim = mm.simulation()
-    newsim.run()
+    newsim = mm.simulation(
+                          # Simulation parameters here
+                          )
+    newsim.run(
+               # Market parameters here
+               )
     newsim.stats()
     
     Simulation Results
@@ -65,52 +69,66 @@ When creating the **simulation** class, you can pass the following parameters:
 When running a simulation, you can pass the following arguments to the **run function**:
 
 
-      **arrival_rate:** int
-               average number of new agents per period
-               the lambda in a poisson distribution
+            arrival_rate: int
+                average number of new agents per period
+                the lambda in a poisson distribution
+                
+            average_success_prob: f() -> float[0,1]
+                cutoff value passed in neighborfct
+                1 - pr(failure of match) for average of mrkt
+                
+            algorithm: f(list<agent>) -> dict{agent.name : agent.name}
+                Matching Algorithm
+                takes current agents in market as input
+                returns a list of matches
+                see algorithms.py for details
+                
+            arrival_fct: fct(float) -> int
+                function that returns number of arrival this period
+                poisson distribution draw by default
+                
+            crit_input:int
+                input in time_to_crit, usually param in a rng fct
+                
+            discount: fct() -> [0,1]
+                function generating agent discount rate
+                
+            matchUtilFct: fct(agent1, agent2, float) -> float
+                returns utility for agent1 of matching to agent2
+                
+            metaAlgorithm: f(market, algorithm, **kwargs)
+                                -> dict{agent.name : agent.name}
+                Algorithm responsible for timing decisions
+                Decides when to match, and who participates
+                in the matching algorithm
+                
+            metaParams: dict{string: value}
+                kwargs passed into the metaAlgorithm
+                This can then be passed into the Algorithm
+                
+            neighborFct: fct(agent1, agent2, float) -> float
+                rng function returning agents who are
+                compatible matches based on input
+                float parameter is a cutoff value for rng
+                
+            numTypes: int
+                input in typeGenerator
+                usually # of types
 
-      **algorithm:** f(list[agent]) -> dict{agent.name : agent.name}
-               Matching Algorithm
-               takes current agents in market as input
-               returns a list of matches
-               see algorithms.py for details
-
-      **metaAlgorithm:** f(market, algorithm)
-                               -> dict{agent.name : agent.name}
-               Algorithm responsible for timing decisions
-               Decides when to match, and who participates
-               in the matching algorithm
-
-      **neighborFct:** fct(agent1, agent2, float) -> float
-               rng function returning agents who are
-               compatible matches based on input
-               float parameter is a cutoff value for rng
-
-      **discount:** fct() -> [0,1]
-               rng function generating agent discount rate
-
-      **matchUtilFct:** fct(agent1, agent2, float) -> float
-               returns utility for agent1 of matching to agent2
-
-      **time_to_crit:** fct(x) -> int
-               function generating agent time to criticality
-
-      **crit_input:** int
-               input in above. Usually parameter in rng fct
-
-      **typeGenerator:** fct(int) -> int
-               function generating agent type
-
-      **numTypes:** int
-               input in typeGenerator
-               usually # of types
-
-      **selfMatch:** bool
-               true if an agent can match himself
-               ex: House market
-               false if an agent has to match another
-               ex: marriage market
-
-      **one_minus_average_fail_prob:** f() -> float[0,1]
-               cutoff value passed in neighborfct
-               1 - pr(failure of match) for average of mrkt
+            utilityFctInput: float
+                input for matchUtilFct (usually rng cutoff value)
+                
+            selfMatch: bool
+                true if an agent can match himself
+                ex: House market
+                false if an agent has to match another
+                ex: marriage market
+                
+            time_to_crit: fct() -> int
+                function generating agent time to crit
+                
+            typeGenerator: fct(int) -> int
+                function generating agent type
+                
+            verbose: bool
+                print on relevant actions in update
