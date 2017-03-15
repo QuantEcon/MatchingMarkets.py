@@ -68,7 +68,7 @@ When creating the **simulation** class, you can pass the following parameters:
 
       **logAllData:** bool
               log every single period on every iteration
-              Takes much longer, but outputs pretty graphs
+              Takes much longer, but outputs pretty plots in the stats() function
               if false, only logs final results on each run
 
 
