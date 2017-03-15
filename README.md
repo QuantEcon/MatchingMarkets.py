@@ -1,7 +1,15 @@
 # matchingmarkets
-Python toolbox for simulation of matching markets in economics. Markets can be single period or dynamic. The simulation toolbox is built to be flexible to user-defined algorithms
+Python toolbox for simulation of matching markets in economics.
 
-#Use
+`matchingmarkets` aims to be:
+
+- Easy to use and extend
+- Flexible
+- Expressive
+
+You can use the toolbox to produce simulations of fairly general matching markets. The markets can last one period, or can evolve over many periods. 
+
+# Use
 ----------------------------------------------------------------------
 Please refer to the tutorial notebook for more in depth instructions.
 
