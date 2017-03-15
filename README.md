@@ -3,14 +3,17 @@ Python toolbox for simulation of matching markets in economics.
 
 `matchingmarkets` aims to be:
 
-- Easy to use and extend
-- Flexible
+- Easy to use 
+- Easy to extend
+- Flexible to many types of markets
 - Expressive
 
 You can use the toolbox to produce simulations of fairly general matching markets. The markets can last one period, or can evolve over many time periods. Here is an example of a graph produced with the package of a market evolving over many periods:
 
 ![alt tag](https://raw.githubusercontent.com/VHRanger/matchingmarkets/master/matching%20graph%20example.gif)
     
+In this plot, nodes are people, and color is their "type" (think blood type in organ transplants). Number on a node is periods of life left before death if not matched. An edge means they are compatible (it can be weighed if there's risk of failure). Edges get highlighted red before matches.
+
 This can be produced with this code:
 
     import matchingmarkets as mm
