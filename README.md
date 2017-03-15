@@ -20,6 +20,8 @@ This can be produced with this code:
     import numpy.random as rng
 
     newsim = mm.simulation(time_per_run=100, max_agents=1000)
+    
+    # Make sure matplotlib is __not__ inline for this
     newsim.graph(arrival_rate=15, average_success_prob=lambda: 0.3,
                  typeGenerator=rng.randint,
                  neighborFct=mm.stochastic_neighborSameType,
