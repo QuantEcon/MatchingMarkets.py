@@ -12,7 +12,7 @@ You can use the toolbox to produce simulations of fairly general matching market
 
 ![alt tag](https://raw.githubusercontent.com/VHRanger/matchingmarkets/master/matching%20graph%20example.gif)
     
-In this plot, nodes are people, and color is their "type" (think blood type in organ transplants). Number on a node is periods of life left before death if not matched. An edge means they are compatible (it can be weighed if there's risk of failure). Edges get highlighted red before matches.
+In this plot, nodes are people, and color is their "type" (think blood type in organ transplants). Number on a node is periods of life left before death if not matched. An edge means they are compatible (it can be weighed if there's risk of failure). Edges get highlighted red before matches. In this simulation, only people of the same type can be compatible, and we naively match two compatible individuals at random. Our timing decision rule here is to naively try to match everyone each period.
 
 This can be produced with this code:
 
@@ -24,6 +24,7 @@ This can be produced with this code:
                  typeGenerator=rng.randint,
                  neighborFct=mm.stochastic_neighborSameType,
                  crit_input=3, numTypes=5, plot_time=0.8)
+
 
 # Use
 ----------------------------------------------------------------------
