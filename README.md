@@ -12,14 +12,14 @@ You can use the toolbox to produce simulations of fairly general matching market
 
 ![alt tag](https://raw.githubusercontent.com/VHRanger/matchingmarkets/master/matching%20graph%20example.gif)
     
-In this plot, nodes are people, and color is their "type" (think patient or donor blood type in organ transplants). Number on a node is periods of life left before death if not matched. An edge means they are compatible (it can be weighed if there's risk of failure). Edges get highlighted red before matches. In this simulation, only people of the same type can be compatible, and we naively match two compatible individuals at random. Our timing decision rule here is to naively try to match everyone each period.
+In this graph, nodes are people and node color is their "type" (think patient or donor blood type in organ transplants). The number on a node is periods of life left before death if not matched. An edge means they are compatible (it can be weighed if there's risk of failure). Edges get highlighted red before matches. In this simulation, only people of the same type can be compatible, and we naively match two compatible individuals at random. Our timing decision rule here is to naively try to match everyone each period.
 
-This can be produced with this code:
+The figure can be produced with this code:
 
     import matchingmarkets as mm
     import numpy.random as rng
 
-    newsim = mm.simulation(time_per_run=100, max_agents=1000)
+    newsim = mm.simulation(time_per_run=100, max_agents=5000)
     
     # Make sure matplotlib is __not__ inline for this
     newsim.graph(arrival_rate=15, average_success_prob=lambda: 0.3,
