@@ -27,7 +27,7 @@ This can be produced with this code:
 
 # Use
 ----------------------------------------------------------------------
-Please refer to the [tutorial notebook]() for more in depth instructions.
+Please refer to the [tutorial notebook](https://github.com/VHRanger/matchingmarkets/blob/master/matchingmarkets%20package%20tutorial.ipynb) for more in depth instructions.
 
 Download the package, change directory to the one containing it in your python console, and `import matchingmarkets as mm`.
 
