@@ -42,6 +42,8 @@ Intended use is through the `simulation` object, as follows:
     newsim.run(
                # Market parameters here
                )
+    
+    #prints output of a simulation
     newsim.stats()
     
     Simulation Results
