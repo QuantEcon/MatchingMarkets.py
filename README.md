@@ -26,6 +26,17 @@ The figure can be produced with this code:
                  typeGenerator=rng.randint,
                  neighborFct=mm.stochastic_neighborSameType,
                  crit_input=3, numTypes=5, plot_time=0.8)
+                 
+                 
+# Prerequisites
+
+- Python >3.6
+
+- Numpy/scipy
+
+- NetworkX 
+
+If you use the Anaconda distribution with python 3, you should have no problems using the package.
 
 
 # Use
