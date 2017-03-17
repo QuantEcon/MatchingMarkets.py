@@ -28,7 +28,7 @@ The figure can be produced with this code:
                  crit_input=3, numTypes=5, plot_time=0.8)
                  
                  
-# Prerequisites
+# Dependencies
 
 - Python >3.6
 
