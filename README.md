@@ -30,7 +30,7 @@ The figure can be produced with this code:
                  
 # Dependencies
 
-- Python >3.6
+- Python 3.6+
 
 - Numpy/scipy
 
