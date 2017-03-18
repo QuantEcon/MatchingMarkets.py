@@ -1,4 +1,4 @@
-# matchingmarkets
+# MatchingMarkets
 Python toolbox for simulation of matching markets in economics.
 
 `matchingmarkets` aims to be:
