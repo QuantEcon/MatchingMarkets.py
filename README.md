@@ -30,13 +30,17 @@ The figure can be produced with this code:
                  
 # Dependencies
 
+If you use the Anaconda distribution with python 3, you should have no problems using the package.
+
 - Python 3.6+
 
 - Numpy/scipy
 
 - NetworkX 
 
-If you use the Anaconda distribution with python 3, you should have no problems using the package.
+- Matplotlib with qt5agg backend (for interactive graph plotting) This backend can be changed manually in "Markets.py"
+
+- A [PuLP](https://github.com/coin-or/pulp) installation is included by default in "mm.algorithms" for kidney solvers. This uses the COIN-OR cbc solver by default and can be changed to Gurobi, CPLEX or other compatible solvers manually
 
 
 # Use
