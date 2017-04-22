@@ -1,6 +1,11 @@
 from scipy.stats import poisson
 import numpy as np
 import networkx as nx
+
+# Graph Drawing Engine
+# Uses qt5 by default, change parameter here for different rendering
+import matplotlib
+matplotlib.use('qt5agg')
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
@@ -186,6 +191,7 @@ class Market:
                           " || Perished " + str(len(self.perished)) +
                           " || Loss% " + "%.3f" % (100*self.loss)
                           )
+                plt.show()
                 plt.pause(self.plot_time)
         # Check if market full, if not get new arrivals
         if self.total_agents < self.max_agents:
@@ -297,6 +303,7 @@ class Market:
                       " || Perished " + str(len(self.perished)) +
                       " || Loss% " + "%.3f" % (100*self.loss)
                       )
+            plt.show()
             plt.pause(self.plot_time)
 
         # perform Matching
@@ -344,6 +351,7 @@ class Market:
                       " || Perished " + str(len(self.perished)) +
                       " || Loss% " + "%.3f" % (100*self.loss)
                       )
+            plt.show()
             plt.pause(self.plot_time)
 
         to_remove = list()
