@@ -1,14 +1,7 @@
 # MatchingMarkets
-Python toolbox for simulation of matching markets in economics.
+A python toolbox for simulation of matching markets in economics.
 
-`matchingmarkets` aims to be:
-
-- Easy to use 
-- Easy to extend
-- Flexible to many types of markets
-- Expressive
-
-You can use the toolbox to produce simulations of fairly general matching markets. The markets can last one period, or can evolve over many time periods. Here is an example of a graph produced with the package of a market evolving over many periods:
+You can use the toolbox to produce simulations of fairly general matching markets. Examples of matchings markets are matching organ donors to transplant patients, matching high school students to schools, or matching the godds and individuals in a barter economy. These markets can last one period, or can evolve over many time periods. Here is an example of a graph produced with the package of a market evolving over many periods:
 
 ![alt tag](https://raw.githubusercontent.com/VHRanger/matchingmarkets/master/matching%20graph%20example.gif)
     
@@ -30,7 +23,7 @@ The figure can be produced with this code:
                  
 # Dependencies
 
-If you use the Anaconda distribution with python 3, you should have no problems using the package.
+MatchingMarkets.py aims to be "batteries included". If you use the Anaconda distribution with python 3, you should have no problems using the package.
 
 - Python 3.6+
 
