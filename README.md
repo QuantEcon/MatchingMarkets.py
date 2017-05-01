@@ -44,7 +44,7 @@ Formally, it requires Python 3.6+, Numpy/scipy, NetworkX, matplotlib with qt5agg
 
 # Use
 
-Please refer to the [tutorial notebook](https://github.com/QuantEcon/MatchingMarkets.py/blob/master/matchingmarkets%20package%20tutorial.ipynb) for more in depth instructions.
+Please refer to the [tutorial notebook](https://github.com/QuantEcon/MatchingMarkets.py/blob/master/Papers%2C%20tutorials%2C%20etc/matchingmarkets%20package%20tutorial.ipynb) for more in depth instructions.
 
 Download the package, change directory to the one containing it in your python console, and `import matchingmarkets as mm`.
 
