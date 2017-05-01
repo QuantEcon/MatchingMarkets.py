@@ -12,13 +12,14 @@ The figure can be produced with this code:
     import matchingmarkets as mm
     import numpy.random as rng
 
-    newsim = mm.simulation(time_per_run=100, max_agents=5000)
+    newsim = mm.simulation(time_per_run=100, max_agents=5000,
+                           arrival_rate=15, average_success_prob=lambda: 0.3,
+                           typeGenerator=rng.randint,
+                           neighborFct=mm.stochastic_neighborSameType,
+                           crit_input=3, numTypes=5)
     
     # Make sure matplotlib is __not__ inline for this
-    newsim.graph(arrival_rate=15, average_success_prob=lambda: 0.3,
-                 typeGenerator=rng.randint,
-                 neighborFct=mm.stochastic_neighborSameType,
-                 crit_input=3, numTypes=5, plot_time=0.8)
+    newsim.graph(plot_time=0.8)
                  
                  
 # Dependencies
@@ -47,13 +48,12 @@ Intended use is through the `simulation` object, as follows:
     newsim = mm.simulation(
                           # Simulation parameters here
                           )
-    newsim.run(
-               # Market parameters here
-               )
+    newsim.run()
     
     #prints output of a simulation
     newsim.stats()
     
+    out[5]:
     Simulation Results
     1  periods
     50  runs
@@ -67,23 +67,19 @@ Intended use is through the `simulation` object, as follows:
 The simulation class has many attributes to simulate static (single period) or dynamic (multi-period) matching markets. 
 When creating the **simulation** class, you can pass the following parameters:
 
-      **runs:** int
+          runs: int
             number of trials when runs
 
-      **time_per_run:** int
-          number of time periods in a run
+          time_per_run: int
+              number of time periods in a run
 
-      **max_agents:** int
+           max_agents: int
               maximum number of agents over a run overall
 
-      **logAllData:** bool
+           logAllData: bool
               log every single period on every iteration
               Takes much longer, but outputs pretty plots in the stats() function
               if false, only logs final results on each run
-
-
-When running a simulation, you can pass the following arguments to the **run function**:
-
 
             arrival_rate: int
                 average number of new agents per period
