@@ -26,22 +26,29 @@ The figure can be produced with this code:
 
 MatchingMarkets.py aims to be "batteries included". If you use the Anaconda distribution with python 3, you should have no problems using the package.
 
-- Python 3.6+
+Formally, it requires Python 3.6+, Numpy/scipy, NetworkX, matplotlib with qt5agg backend (for interactive graph plotting) This backend can be changed manually in "Markets.py" A [PuLP](https://github.com/coin-or/pulp) installation is included by default in `matchingmarkets/algorithms/pulp` for kidney solvers. This uses the COIN-OR cbc solver by default and can be changed to Gurobi, CPLEX or other compatible solvers manually
 
-- Numpy/scipy
+# Included algorithms
 
-- NetworkX 
+- Random pairwise match (default)
 
-- Matplotlib with qt5agg backend (for interactive graph plotting) This backend can be changed manually in "Markets.py"
+- [Top Trading cycle](https://en.wikipedia.org/wiki/Top_trading_cycle)
 
-- A [PuLP](https://github.com/coin-or/pulp) installation is included by default in `matchingmarkets/algorithms/pulp` for kidney solvers. This uses the COIN-OR cbc solver by default and can be changed to Gurobi, CPLEX or other compatible solvers manually
+- [Serial dictatorship](https://jeremykun.com/2015/10/26/serial-dictatorships-and-house-allocation/) (serial ordering is user definable with lambda input)
 
+- [Max weight matching](https://en.wikipedia.org/wiki/Blossom_algorithm) (Based on blossom algorithm)
+
+- [Max cardinality matching](https://en.wikipedia.org/wiki/Matching_(graph_theory)) 
+
+- Modern kidney solvers are not functional yet.
 
 # Use
 ----------------------------------------------------------------------
 Please refer to the [tutorial notebook](https://github.com/QuantEcon/MatchingMarkets.py/blob/master/matchingmarkets%20package%20tutorial.ipynb) for more in depth instructions.
 
 Download the package, change directory to the one containing it in your python console, and `import matchingmarkets as mm`.
+
+There is a library of **generators** which can be found in the code. They are used to generate different markets.
 
 Intended use is through the `simulation` object, as follows:
 
