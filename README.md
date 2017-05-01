@@ -45,9 +45,9 @@ Formally, it requires Python 3.6+, Numpy/scipy, NetworkX, matplotlib with qt5agg
 
 # Market Generating
 
-It can be useful to try out a few settings on generators and visualize the output to see if the simuation is what you want.  The current suite of generators is in `matchingmarkets/generators/basic` Currently we have:
+It can be useful to try out a few settings on generators and visualize the output to see if the simuation is what you want.  The current suite of generators is in [this file](https://github.com/QuantEcon/MatchingMarkets.py/blob/master/matchingmarkets/generators/basic.py). Currently we have:
 
-- Random assignment of one or multiple types
+- Random or deterministic assignment of one or multiple abstract types
 
 - Blood types (for organ transplants)
 
@@ -60,8 +60,6 @@ More important is the function defining **match compatibility** based on types o
 Please refer to the [tutorial notebook](https://github.com/QuantEcon/MatchingMarkets.py/blob/master/Papers%2C%20tutorials%2C%20etc/matchingmarkets%20package%20tutorial.ipynb) for more in depth instructions.
 
 Download the package, change directory to the one containing it in your python console, and `import matchingmarkets as mm`.
-
-There is a library of **generators** which can be found in the code. They are used to generate different markets.
 
 Intended use is through the `simulation` object, as follows:
 
