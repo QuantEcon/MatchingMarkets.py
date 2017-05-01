@@ -42,6 +42,19 @@ Formally, it requires Python 3.6+, Numpy/scipy, NetworkX, matplotlib with qt5agg
 
 - Modern kidney solvers are not functional yet.
 
+
+# Market Generating
+
+It can be useful to try out a few settings on generators and visualize the output to see if the simuation is what you want.  The current suite of generators is in `matchingmarkets/generators/basic` Currently we have:
+
+- Random assignment of one or multiple types
+
+- Blood types (for organ transplants)
+
+- It's easy to write a lambda and pass it in the `typeGenerator` attribute in a `mm.simulation` object. The lambda should respect the format of generator functions. 
+
+More important is the function defining **match compatibility** based on types of agents. This is in the same file as above. Using abstract types and cutoff values for the RNG, you can simulate many classic matching problems easily. It is also easy to write a lambda which simulates the compatibility you desire as long as it respects the form **f(sourceAgent, receivingAgent, cutoff=1) -> float in [0,1]** where the result is the match success probability, and cutoff is an optional parameter usually used in an RNG.
+
 # Use
 
 Please refer to the [tutorial notebook](https://github.com/QuantEcon/MatchingMarkets.py/blob/master/Papers%2C%20tutorials%2C%20etc/matchingmarkets%20package%20tutorial.ipynb) for more in depth instructions.
@@ -70,6 +83,12 @@ Intended use is through the `simulation` object, as follows:
     matches:   50.04  ( 6.7675 )
     perished:  0.0  ( 0.0000 )
     loss%:     0.0000  ( 0.0000 )
+    
+One way to get as much information about your simulation as possible is to run it with the `verbose` flag on, and plot a few periods:
+
+    newsim.verbose = True
+    newsim.graph(period=10)
+    # This will print all relevant information to console, and graph the output
    
 The simulation class has many attributes to simulate static (single period) or dynamic (multi-period) matching markets. 
 When creating the **simulation** class, you can pass the following parameters:
