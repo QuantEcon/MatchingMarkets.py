@@ -1,7 +1,7 @@
 # MatchingMarkets
 A python toolbox for simulation of matching markets in economics.
 
-The toolbox can produce simulations of fairly general matching markets. Examples of matchings markets are organ exchanges, school/student ass, or matching the goods and individuals in a barter economy. These markets can last one period, or can evolve over many time periods. Here is an example of a graph produced with the package of a market evolving over many periods:
+The toolbox can produce simulations of fairly general matching markets. Examples of matchings markets are organ exchanges, school/student assignment or matching goods and individuals in a barter economy. These markets can last one period, or can evolve over many time periods. Here is an example of a graph produced with the package of a market evolving over many periods:
 
 ![alt tag](https://raw.githubusercontent.com/VHRanger/matchingmarkets/master/matching%20graph%20example.gif)
     
