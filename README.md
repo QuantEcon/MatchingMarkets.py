@@ -34,6 +34,8 @@ Formally, it requires Python 3.6+, Numpy/scipy, NetworkX, matplotlib with qt5agg
 
 - [Top Trading cycle](https://en.wikipedia.org/wiki/Top_trading_cycle)
 
+- [Gale-Shapley deferred acceptance algorithm](https://en.wikipedia.org/wiki/Stable_marriage_problem)
+
 - [Serial dictatorship](https://jeremykun.com/2015/10/26/serial-dictatorships-and-house-allocation/) (serial ordering is user definable with lambda input)
 
 - [Max weight matching](https://en.wikipedia.org/wiki/Blossom_algorithm) (Based on blossom algorithm)
