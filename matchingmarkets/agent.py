@@ -14,7 +14,7 @@ class Agent:
         automatically based on sojourn==time_to_critical
     name: int
         used to index agent in others' containers
-    myType: object (typically in, sting or list<string>)
+    myType: object (typically in, string or list<string>)
         agent's type. Used in matching to compute compatibility
     matchUtil: dict<name, int>
         utility from match with agent "name"

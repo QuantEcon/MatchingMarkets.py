@@ -12,7 +12,7 @@ from matchingmarkets.generators.basic import *
 
 
 class simulation:
-    def __init__(self, runs=10, time_per_run=1, max_agents=1000,
+    def __init__(self, runs=1, time_per_run=1, max_agents=1000,
                  verbose=False,
                  logAllData=False,
                  arrival_rate=7,
