@@ -24,8 +24,7 @@ for i in range(num_currencies):
             counter += 1
 
 def typeGen(_numtypes):
-    draw_from_dist = rng.multinomial(1, p_vals)
-    draw_from_dist = draw_from_dist.tolist()
+    draw_from_dist = rng.multinomial(1, p_vals).tolist()
     pair_index = draw_from_dist.index(1)
 
     crypto1, crypto2 = p_dict[pair_index]
@@ -42,14 +41,14 @@ def typeGen(_numtypes):
     quantity_to_sell = rng.normal(median_quantity, median_quantity * quantity_stddev)
     return (have, quantity_to_sell, want, quantity_to_sell / desired_price)
 
-for i in range(100):
-    print(typeGen(1))
+# for i in range(100):
+#     print(typeGen(1))
 
-# newsim = mm.simulation(time_per_run=100, max_agents=5000,
-#                        arrival_rate=15, success_prob=lambda: 0.3,
-#                        typeGenerator=typeGen,
-#                        compatFct=mm.stochastic_neighborSameType,
-#                        crit_input=3, numTypes=5)
-#
-# # Make sure matplotlib is __not__ inline for this
-# newsim.graph(plot_time=0.8)
+newsim = mm.simulation(time_per_run=100, max_agents=5000,
+                       arrival_rate=15, success_prob=lambda: 0.3,
+                       typeGenerator=typeGen,
+                       compatFct=mm.stochastic_neighborSameType,
+                       crit_input=3, numTypes=5)
+
+# Make sure matplotlib is __not__ inline for this
+newsim.graph(plot_time=0.8)
