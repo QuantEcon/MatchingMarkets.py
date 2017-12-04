@@ -239,14 +239,14 @@ print "-------------------"
 print "Number of Completed Orders: ", num_comp_orders
 print "Percentage of orders 100'%' fulfilled: ", str((num_comp_orders*100)/num_of_agents) + '%'
 print "Percentage of orders 50'%'-99'%' fulfilled: "
-print "Percentage of orders 25'%'-49'%' fulfilled: "
+print "Percentage of orders 0'%'-49'%' fulfilled: "
 print
 print "TRANSACTIONS"
 print "-------------------"
 print "Total Number of Transactions: ", num_transactions
-print "Estimated Total Transaction Fees: "
+print "Estimated Total Transaction Fees: GET INFO FROM JEFF"
 print "Avg Number of Transactions per agent: ", float(num_transactions) / float(num_of_agents)
-print "Avg Total Transaction Fees paid per agent: "
+print "Avg Total Transaction Fees paid per agent: GET INFO FROM JEFF"
 print 
 print "END"
 
