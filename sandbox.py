@@ -4,19 +4,35 @@ import random
 import numpy as np
 import copy
 from collections import defaultdict
+import sys
 
-
-quantity_stddev = 0.1 # make HIGH as there is big spread on things
+quantity_stddev = 0.1
 price_stddev = 0.03
 num_currencies = 3
 
-# tuple represents price in USD, median transaction size in unit of coin
-currency_dict = {} # key=ID -> Tupe(price, media transaction_size)
-currency_dict[0] = (11000.0, 0.057) #BTC
-currency_dict[1] = (460.0, 1.0) #ETH
-currency_dict[2] = (1.0, 500) #USD
+# if len(sys.argv) > 2 and int(sys.argv[2]) > 2:
+#     num_currencies = int(sys.argv[1])
 
-p_vals = [0.05, 0.8, 0.15] #BTC and ETH, BTC and USD, ETH and USD (probability of exchange between two currencies)
+
+# tuple represents price in USD, median transaction size in unit of coin
+# vary second parameter in order to experiment with different trade sizes
+currencies = [
+    (1.0, 500), #USD
+    (11000.0, 0.057), #BTC
+    (460.0, 1.0), #ETH
+    (3000, 0.25), #random middle-price currency
+    (100, 5), #low price
+    (10, 100) #even lower price
+]
+
+# populate dictionary for currencies
+currency_dict = {}
+for i, currency in enumerate(currencies):
+    currency_dict[i] = currency#
+
+# this will just have to be manually adjusted - only works for num_currnecies <= 3
+# can randomize or something maybe. perhaps in the future, we have a relatively uniform distribution
+p_vals = [0.05, 0.8, 0.15] #BTC and ETH, BTC and USD, ETH and USD
 
 p_dict = {} # mapping from index in p_vals to the ID's of the currencies val is tuple of ID of currency from p_val
 counter = 0
@@ -28,7 +44,6 @@ for i in range(num_currencies):
             counter += 1
 
 # Takes any int
-# 
 def typeGen(_numtypes):
     draw_from_dist = rng.multinomial(1, p_vals).tolist()
     pair_index = draw_from_dist.index(1)
@@ -49,157 +64,191 @@ def typeGen(_numtypes):
     # ID of cript you have, how much of that curr you want to cell, what currency you want, how much of the want crypto do you want
     return (have, quantity_to_sell, want, quantity_to_sell * desired_price)
 
-# newsim = mm.simulation(time_per_run=100, max_agents=5000,
-#                        arrival_rate=15, success_prob=lambda: 0.3,
-#                        typetypeGenGenerator=,
-#                        # compatFct=mm.stochastic_neighborSameType,
-#                        algorithm=current_exchange,
-#                        # algorithm=mm.max_weight_matching,
-#                        # compatFct=current_exchange,
-#                        crit_input=3, numTypes=5)
-
-# Make sure matplotlib is __not__ inline for this
-# newsim.graph(plot_time=0.8)
-
-
-# ---------------------
+# ----------------------------------
 # Current Crypto Exchange Mechanism
-# ---------------------
+# ----------------------------------
 
 # SECTION I: Generating Agents
 
+# Appends the agent to the list where all agents have/want the same currincies
 def sort_order_in_dict(dict_pos, agent_obj, have, want):
     if have < want:
         dict_pos[0].append(agent_obj)
     else:
         dict_pos[1].append(agent_obj)
 
+# Takes an int num_of_agents and generates that many agents
 def generate_agents(num_of_agents):
-    # key (currency1, currency2) -> list of two lists [[have_x][want_x]]
-    # Elements of each sublist are typles of (agent_name, have, quantity_to_sell, quantity_to_sell/desired_price)
+    # Returns a dictionary as such key (currency1, currency2) -> list of two lists [[have_x][want_x]]
+    # Elements of each sublist are tuples of (agent_name, have, quantity_to_sell, quantity_to_sell/desired_price)
     matching_groups = defaultdict(list)
     agents = []
+
+    # Creates a list of agents
     for i in xrange(num_of_agents):
         agent_name = i # creation time, add expiration date!!!
         have, quantity_to_sell, want, priced_amount = typeGen(1)
         agents.append([agent_name, have, quantity_to_sell, want, priced_amount])
 
-    # Creat dict of agents {type -> agent_id}
+    # Populates the matching_groups dictionary
     for agent in agents:
         agent_name, have, quantity_to_sell, want, amount = agent
         first_elm, second_elm = max(have, want), min(have, want)
-        # Name, have, q_to_sell, want, desired_price
-        agent_obj = [agent_name, have, quantity_to_sell, amount/quantity_to_sell]
+        
+        # Tuple of -> Name, have, quantity_to_sell, want, desired_price, indicator of where agent has been treated as an order or not
+        agent_obj = [agent_name, have, quantity_to_sell, amount/quantity_to_sell, False] 
         
         if (first_elm, second_elm) in matching_groups:
             sort_order_in_dict(matching_groups[(first_elm, second_elm)],agent_obj, have, want)
         else: 
-            matching_groups[(first_elm, second_elm)] = [[],[]] # Two separate groups. HAVE min then HAVE max
+            matching_groups[(first_elm, second_elm)] = [[],[]] # Two separate groups lists, one for each group of orders that have/want the same currencies
             sort_order_in_dict(matching_groups[(first_elm, second_elm)],agent_obj, have, want)
 
     return matching_groups
 
-# Call to generate a list of 20 agents
-# print generate_agents(10)
-
 # SECTION II: Matching Agents
 
 def match_order(offers, order):
-    order_name,order_quantity_to_sell, order_desired_price = order[0], order[2], order[3]  # Order agent
-    sorted_offers = sorted(offers, key=lambda x: x[3]) # smaller desired price is better to match with
-    temp_matches = []
-    i = 0
+    
+    order_name,order_quantity_to_sell, order_desired_price = order[0], order[2], order[3] 
+    # Sort from most desired price to least desired price for the according to the order
+    sorted_offers = sorted(offers, key=lambda x: x[3])
+    matches = []
     completed_orders = 0
+    number_of_transactions = 0
 
+    # Attempt to fulfill a given order
     for i in xrange(len(sorted_offers)):
-        offer_name, _,offer_quantity_to_sell, offer_desired_price = sorted_offers[i]
+        # Offer details
+        offer_name, _,offer_quantity_to_sell, offer_desired_price,_ = sorted_offers[i]
         
+        # Transact if the offer gives you at least a price as good as yours
         if order_desired_price <= 1/offer_desired_price:
             offer_quantity = offer_quantity_to_sell * offer_desired_price
-            temp_matches.append((order_name,offer_name))
+            # Keep track of the matches made
+            matches.append((order_name,offer_name))
             
-            if offer_quantity > order_quantity_to_sell: # order is filled
-                # Update offer quantity
+            # Order is completed
+            if offer_quantity > order_quantity_to_sell: 
+                # Update order and offer quantities
                 order_quantity_to_sell = 0
                 sorted_offers[i][1] = (offer_quantity - order_quantity_to_sell) * (1/offer_desired_price)
+                # Keep track of number of completed orders and transactions
                 completed_orders += 1
+                number_of_transactions += 1
                 break; 
             elif offer_quantity == order_quantity_to_sell: # order and offer are done
                 order_quantity_to_sell = 0
                 sorted_offers[i] = None # delete offer
+                # Keep track of number of completed orders and transactions
                 completed_orders += 2
+                number_of_transactions += 1
                 break;
             elif offer_quantity < order_quantity_to_sell: # offer is done 
-                # update order
+                # Update order quantity
                 order_quantity_to_sell = order_quantity_to_sell - offer_quantity
-                sorted_offers[i] = None
+                sorted_offers[i] = None # delete offer
+                # Keep track of number of completed orders and transactions
                 completed_orders += 1
+                number_of_transactions += 1
 
+    # Sort offers based on name (aka time the offer has been placed)
+    offers = sorted(filter(None, sorted_offers), key=lambda x: x[0])  
     if order_quantity_to_sell == 0:
-        offers = sorted(filter(None, sorted_offers), key=lambda x: x[0])        
-        return (offers, temp_matches, completed_orders)
-    else: # order can't be matched, remove it from the list
-        return (False, False, False)
+        return (offers, matches, completed_orders, number_of_transactions, True) # Order is filled
+    else: 
+        return (offers, matches, completed_orders, number_of_transactions, False) # Order is not filled
 
 # Matches agents according to the current crypto exchange markets.
 # Returns a dict of matches. Key=Agent_name -> val= list of tuples (match_name, from, to, quantity?)
 def current_exchange(matching_groups):
     completed_orders_counter = 0
+    num_transactions = 0
     matches = defaultdict(list)
-    
+    # Iterate of each matching group (agents that can transact with each other)
     for key, val in matching_groups.iteritems():
-        
+        # Split agents to two groups, want X and has X
         group1, group2 = val[0], val[1]
-        
+        # Attempt to match all agents
         while len(group1) != 0 and len(group2) != 0:
-            first_g1, first_g2 = group1[0][0], group2[0][0]
+            # Find the the oldest element from each group that has not been placed as an order yet
 
-            if first_g1 > first_g2: # Match g2's oldest order
-                offers, new_matches, new_comp_orders = match_order(group1,group2[0]) # (offers, order)
-                del group2[0]
-            else: # Match g1's oldest order
-                offers, new_matches, new_comp_orders = match_order(group2,group1[0]) # (offers, order)
-                del group1[0]
+            first_g1, first_g2 = None, None
+            for item in group1:
+                if item[4] == False: # then set min
+                    first_g1 = item
+                    break
+            for item in group2:
+                if item[4] == False: # then set min
+                    first_g2 = item
+                    break
+            # if there are no agents in either one of the groups to transact with
+            if first_g1 == None or first_g2 == None:
+                break
             
-            if offers != False and new_matches != False:
-                completed_orders_counter += new_comp_orders
-                
-                for match in new_matches:
-                    agent1, agent2 = match
-                    matches[agent1].append(agent2)
-                    matches[agent2].append(agent1)
-                
-                if first_g1 > first_g2:
-                    group1 = offers
-                else:
-                    group2 = offers
+            if first_g1[0] > first_g2[0]: # Match g2's oldest order
+                group2[group2.index(first_g2)][4] = True
+                offers, new_matches, new_comp_orders, new_num_trans, offer_status = match_order(group1,first_g2) # (offers, order)
+                group1 = offers
+                if offer_status:
+                    del group2[group2.index(first_g2)]
+            else: # Match g1's oldest order
+                group1[group1.index(first_g1)][4] = True
+                offers, new_matches, new_comp_orders, new_num_trans, offer_status = match_order(group2,first_g1) # (offers, order)
+                group2 = offers
+                if offer_status:
+                    del group1[group1.index(first_g1)]
+            
+            # Count number of transactions and filled orders
+            completed_orders_counter += new_comp_orders
+            num_transactions += new_num_trans
+            
+            # Add matched to dict
+            for match in new_matches:
+                agent1, agent2 = match
+                matches[agent1].append(agent2)
+                matches[agent2].append(agent1)
 
-    return (matches, completed_orders_counter)
+    return (matches, completed_orders_counter, num_transactions)
 
 # Call to generate matches and run current crypto exchange matching algorithm
 # Returns tuple of dict of matches and number of fullfilled agents
 # current_exchange(generate_agents(100))
 
-# SECTION III: Data Analytics
+# SECTION III: Data Analysis
 
-all_matches, num_comp_orders =  current_exchange(generate_agents(100))
-# print "Matches: ", all_matches
-print "General Information"
-print "-------------------"
-print "Number of Orders: "
-print "Number of Currencies being exchanged: "
-print "Number of exchange groups: "
+num_of_agents = 100
+input_num_agents = int(sys.argv[1])
+
+if len(sys.argv) > 1 and int(sys.argv[1]) > 1:
+    num_of_agents = int(sys.argv[1])
+
+agents_dict = generate_agents(num_of_agents)
+all_matches, num_comp_orders, num_transactions =  current_exchange(agents_dict)
+
+print "START"
 print
+print "GENERAL INFO"
 print "-------------------"
-print "Order Completion Rates"
+print "Number of Orders: ", num_of_agents
+print "Number of Currencies being exchanged: ", num_currencies
+print "Number of currency exchange groups: ", len(agents_dict)
+print
+print "ORDER COMPLETION RATE"
+print "-------------------"
 print "Number of Completed Orders: ", num_comp_orders
-print "Percentage of orders 100'%' fulfilled: "
+print "Percentage of orders 100'%' fulfilled: ", str((num_comp_orders*100)/num_of_agents) + '%'
 print "Percentage of orders 50'%'-99'%' fulfilled: "
 print "Percentage of orders 25'%'-49'%' fulfilled: "
 print
+print "TRANSACTIONS"
 print "-------------------"
-print "Total Number of Transactions: "
+print "Total Number of Transactions: ", num_transactions
 print "Estimated Total Transaction Fees: "
+print "Avg Number of Transactions per agent: ", float(num_transactions) / float(num_of_agents)
+print "Avg Total Transaction Fees paid per agent: "
+print 
+print "END"
 
 
 
