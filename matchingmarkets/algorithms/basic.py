@@ -43,10 +43,20 @@ def arbitraryMatch(Mrkt, Agents, verbose=False):
 
     References: "Dynamic Matching Market Design", Akbarpour, Li & Gharan, 2014
     """
+    # print "Market: ", Mrkt.Agents
+    # print "Agents: ", Agents
+
+    # test = [a.type for a in Agents]
+    # print "Agents: ", test
+
+    # testing = [a.name for a in Mrkt.Agents]
+    # print "Market: ", testing
+
     if verbose:
         print("\n\n++++\nStarting Arbitrary Match Algo\n++++\n\n")
     matched = dict()
     allAgentNames = [a.name for a in Mrkt.Agents]
+
     if verbose:
         print("Agents to match ", [a.name for a in Agents], "\n")
     # copy list of agents to match
@@ -88,6 +98,7 @@ def arbitraryMatch(Mrkt, Agents, verbose=False):
 
     if verbose:
         print("\n\n++++++\nArbitrary Match Algorithm Done\n+++++++\n\n")
+    print matched
     return matched
 
 
@@ -191,8 +202,8 @@ def serialDictatorship(Mrkt, Agents, verbose=False,
 def max_weight_matching(Mrkt, Agents, verbose=False, maxcardinality=True):
     """
     Computes max-weight matching of graph of inputted agents
-        based on the “blossom” method for finding augmenting paths
-        and the “primal-dual” method for finding a matching of maximum weight,
+        based on the blossom method for finding augmenting paths
+        and the primal-dual method for finding a matching of maximum weight,
         both methods invented by Jack Edmonds
     Implemented by NetworkX
     Runtime: O(n^3) for n nodes
@@ -212,7 +223,7 @@ def max_weight_matching(Mrkt, Agents, verbose=False, maxcardinality=True):
     dict { agent.name : agent.name } of matches
 
     Reference:
-        “Efficient Algorithms for Finding Maximum Matching in Graphs”,
+        Efficient Algorithms for Finding Maximum Matching in Graphs,
         Zvi Galil, ACM Computing Surveys, 1986.
     """
     if verbose:
