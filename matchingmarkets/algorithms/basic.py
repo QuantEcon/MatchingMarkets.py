@@ -98,7 +98,7 @@ def arbitraryMatch(Mrkt, Agents, verbose=False):
 
     if verbose:
         print("\n\n++++++\nArbitrary Match Algorithm Done\n+++++++\n\n")
-    print matched
+    # print matched
     return matched
 
 
@@ -249,7 +249,7 @@ def max_weight_matching(Mrkt, Agents, verbose=False, maxcardinality=True):
 def max_cardinality_matching(Mrkt, Agents, verbose=False):
     """
     Find a maximal cardinality matching in the graph.
-    A matching is a subset of edges in which no node occurs more than once. 
+    A matching is a subset of edges in which no node occurs more than once.
     The cardinality of a matching is the number of matched edges.
     Implemented by NetworkX
     Runtime: O(e) for e edges

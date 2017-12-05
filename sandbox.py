@@ -30,18 +30,37 @@ currency_dict = {}
 for i, currency in enumerate(currencies):
     currency_dict[i] = currency
 
+
+# tuple represents price in USD, median transaction size in unit of coin
+currency_dict = {}
+# currency_dict[0] = (11000.0, 0.057) #BTC
+# currency_dict[1] = (460.0, 1.0) #ETH
+# currency_dict[2] = (1.0, 500) #USD
+
+currency_dict[0] = (11000.0, 500.0/11000.0) #BTC
+currency_dict[1] = (460.0, 500.0/460.0) #ETH
+currency_dict[2] = (1.0, 500.0) #USD
+# currency_dict[0] = (1.0, 500.0) #USD
+# currency_dict[1] = (1.0, 500.0) #USD
+# currency_dict[2] = (1.0, 500.0) #USD
+
+
 # this will just have to be manually adjusted - only works for num_currnecies <= 3
 # can randomize or something maybe. perhaps in the future, we have a relatively uniform distribution
 p_vals = [0.05, 0.8, 0.15] #BTC and ETH, BTC and USD, ETH and USD
 
 p_dict = {} # mapping from index in p_vals to the ID's of the currencies val is tuple of ID of currency from p_val
 counter = 0
+
+p_dict[0] = (0, 1)
+p_dict[1] = (0, 2)
+p_dict[2] = (1, 2)
 # init p_dict and populate
-for i in range(num_currencies):
-    for j in range(num_currencies):
-        if i != j:
-            p_dict[counter] = (i, j)
-            counter += 1
+# for i in range(num_currencies):
+#     for j in range(num_currencies):
+#         if i != j:
+#             p_dict[counter] = (i, j)
+#             counter += 1
 
 # Takes any int
 def typeGen(_numtypes):
@@ -77,6 +96,99 @@ def sort_order_in_dict(dict_pos, agent_obj, have, want):
     else:
         dict_pos[1].append(agent_obj)
 
+def priceComparedToMarket(currency1, amount1, currency2, amount2):
+    # currency1_id = currency_mapping[currency1]
+    # currency2_id = currency_mapping[currency2]
+    currency1_usd_price, _ = currency_dict[currency1]
+    currency2_usd_price, _ = currency_dict[currency2]
+    return (amount2 * currency2_usd_price)/(amount1 * currency1_usd_price)
+# the higher the worse deal  is getting
+
+
+def strictlyBilateralCompatibility(agent1, agent2, cutoff):
+        agent1_has, agent1_has_quant, agent1_want, agent1_want_quant = agent1.type
+        agent2_has, agent2_has_quant, agent2_want, agent2_want_quant = agent2.type
+
+        # print(agent1_has_quant, agent2_want_quant)
+        # if agent1_has == agent2_want and agent1_has_quant >= agent2_want_quant:
+        if agent1_has == agent2_want and agent2_has == agent1_want:
+            # print("yesss")
+        # if agent1_has == agent2_want:
+            return 1
+        else:
+            return 0
+
+def basicCompatibility(agent1, agent2, cutoff):
+    agent1_has, agent1_has_quant, agent1_want, agent1_want_quant = agent1.type
+    agent2_has, agent2_has_quant, agent2_want, agent2_want_quant = agent2.type
+
+    # print(agent1_has_quant, agent2_want_quant)
+    if agent1_want == agent2_has and abs(agent1_want_quant - agent2_has_quant) < 2:
+        return 1
+    else:
+        return 0
+
+
+def basicMatchUtility(agent1, agent2, cutoff):
+    agent1_willing_price = priceComparedToMarket(*agent1.type)
+    agent2_willing_price = priceComparedToMarket(*agent2.type)
+
+    agent1_has, agent1_has_quant, agent1_want, agent1_want_quant = agent1.type
+    agent2_has, agent2_has_quant, agent2_want, agent2_want_quant = agent2.type
+
+
+    # if abs(agent1_willing_price - agent2_willing_price) < 5:
+    if agent1_has == agent2_want or agent1_want == agent2_has:
+    # if(agent1_willing_price >= agent2_willing_price):
+        return 1
+    else:
+        # return agent1_willing_price/agent2_willing_price
+        return 0
+
+def totalValueMatchUtility(agent1, agent2, cutoff):
+    agent1_willing_price = priceComparedToMarket(*agent1.type)
+    agent2_willing_price = priceComparedToMarket(*agent2.type)
+
+    agent1_has, agent1_has_quant, agent1_want, agent1_want_quant = agent1.type
+    agent2_has, agent2_has_quant, agent2_want, agent2_want_quant = agent2.type
+
+    price1, _ =  currency_dict[agent1_has]
+    price2, _ =  currency_dict[agent2_has]
+
+    if agent1_has == agent2_want:
+        return (price1 * agent1_has_quant - price2 * agent2_has_quant)/(price1 * agent1_has_quant)
+    else:
+        return 0
+
+newsim = mm.simulation(runs= 1, time_per_run=1, max_agents=10000,
+                        logAllData=True,
+                       arrival_rate=50, success_prob=lambda: 1,
+                       time_to_crit=lambda x:10000,
+                       algorithm=mm.TTC,
+                       typeGenerator=typeGen,
+                       matchUtilFct=basicMatchUtility,
+                       compatFct=basicCompatibility,
+                       crit_input=1000, numTypes=5)
+
+newsim.verbose=True
+
+# Make sure matplotlib is __not__ inline for this
+# newsim.graph(plot_time=5, period=1)
+
+newsim.run()
+print(newsim.stats())
+print(newsim.record_matches)
+
+unmatched = []
+
+for agent in newsim.allAgents:
+    if agent in newsim.record_matches:
+        if newsim.record_matches[agent] == agent:
+            unmatched.append(agent)
+    else:
+        unmatched.append(agent)
+print(unmatched)
+
 # Takes an int num_of_agents and generates that many agents
 def generate_agents(num_of_agents):
     # Returns a dictionary as such key (currency1, currency2) -> list of two lists [[have_x][want_x]]
@@ -94,13 +206,13 @@ def generate_agents(num_of_agents):
     for agent in agents:
         agent_name, have, quantity_to_sell, want, amount = agent
         first_elm, second_elm = max(have, want), min(have, want)
-        
+
         # Tuple of -> Name, have, quantity_to_sell, want, desired_price, indicator of where agent has been treated as an order or not
-        agent_obj = [agent_name, have, quantity_to_sell, amount/quantity_to_sell, False] 
+        agent_obj = [agent_name, have, quantity_to_sell, amount/quantity_to_sell, False]
         # Append agent to correct position in the matching_groups dict
         if (first_elm, second_elm) in matching_groups:
             sort_order_in_dict(matching_groups[(first_elm, second_elm)],agent_obj, have, want)
-        else: 
+        else:
             matching_groups[(first_elm, second_elm)] = [[],[]] # Two separate groups lists, one for each group of orders that have/want the same currencies
             sort_order_in_dict(matching_groups[(first_elm, second_elm)],agent_obj, have, want)
     return matching_groups
@@ -108,8 +220,8 @@ def generate_agents(num_of_agents):
 # SECTION II: Matching Agents
 
 def match_order(offers, order):
-    
-    order_name, order_have, order_quantity_to_sell, order_desired_price = order[0], order[1], order[2], order[3] 
+
+    order_name, order_have, order_quantity_to_sell, order_desired_price = order[0], order[1], order[2], order[3]
     # Sort from most desired price to least desired price for the according to the order
     sorted_offers = sorted(offers, key=lambda x: x[3])
     matches = []
@@ -119,7 +231,7 @@ def match_order(offers, order):
     for i in xrange(len(sorted_offers)):
         # Offer details
         offer_name, offer_have, offer_quantity_to_sell, offer_desired_price, _ = sorted_offers[i]
-    
+
         # Transact if the offer gives you at least a price as good as yours
         if order_desired_price <= 1/offer_desired_price:
             # Offer quantity in terms of the order currency
@@ -127,7 +239,7 @@ def match_order(offers, order):
             # Keep track of the matches made
             matches.append((order_name,offer_name))
             # Order is completed
-            if offer_quantity > order_quantity_to_sell: 
+            if offer_quantity > order_quantity_to_sell:
                 dollars_transacted += 2.0*order_quantity_to_sell*currencies[order_have][0] # change to $$
                 # Update order and offer quantities
                 order_quantity_to_sell = 0.0
@@ -135,7 +247,7 @@ def match_order(offers, order):
                 # Keep track of number of completed orders and transactions
                 completed_orders += 1
                 number_of_transactions += 2
-                break; 
+                break;
             elif offer_quantity == order_quantity_to_sell: # order and offer are done
                 dollars_transacted += 2.0*order_quantity_to_sell*currencies[order_have][0] # change to $$
                 order_quantity_to_sell = 0.0
@@ -144,7 +256,7 @@ def match_order(offers, order):
                 completed_orders += 2
                 number_of_transactions += 2
                 break;
-            elif offer_quantity < order_quantity_to_sell: # offer is done 
+            elif offer_quantity < order_quantity_to_sell: # offer is done
                 dollars_transacted += 2.0*offer_quantity_to_sell*currencies[offer_have][0] # change to $$
                 # Update order quantity
                 order_quantity_to_sell = order_quantity_to_sell - offer_quantity
@@ -156,7 +268,7 @@ def match_order(offers, order):
     offers = sorted(filter(None, sorted_offers), key=lambda x: x[0])
     if order_quantity_to_sell == 0:
         return (offers, matches, completed_orders, number_of_transactions, True, dollars_transacted) # Order is filled
-    else: 
+    else:
         return (offers, matches, completed_orders, number_of_transactions, False, dollars_transacted) # Order is not filled
 
 # Matches agents according to the current crypto exchange markets.
@@ -187,7 +299,7 @@ def settle_workbook(matching_groups):
             # if there are no agents in either one of the groups to transact with
             if first_g1 == None or first_g2 == None:
                 break
-            
+
             if first_g1[0] > first_g2[0]: # Match g2's oldest order
                 group2[group2.index(first_g2)][4] = True
                 offers, new_matches, new_comp_orders, new_num_trans, offer_status, dollars_transacted = match_order(group1,first_g2) # (offers, order)
@@ -200,12 +312,12 @@ def settle_workbook(matching_groups):
                 group2 = offers
                 if offer_status:
                     del group1[group1.index(first_g1)]
-            
+
             # Count number of transactions and filled orders
             completed_orders_counter += new_comp_orders
             num_transactions += new_num_trans
             total_dollars_transacted += dollars_transacted
-            
+
             # Add matched to dict
             for match in new_matches:
                 agent1, agent2 = match
@@ -230,50 +342,27 @@ all_matches, num_comp_orders, num_transactions, total_dollars_transacted =  sett
 avg_transaction_size = 0
 if num_transactions > 0:
     avg_transaction_size = total_dollars_transacted/num_transactions
-
-print "START"
+    
+print("START")
 print
-print "GENERAL INFO"
-print "-------------------"
-print "Number of Orders: ", num_of_agents
-print "Number of Currencies being exchanged: ", num_currencies
-print "Number of currency exchange groups: ", len(agents_dict)
+print("GENERAL INFO")
+print("-------------------")
+print("Number of Orders: ", num_of_agents)
+print("Number of Currencies being exchanged: ", num_currencies)
+print("Number of currency exchange groups: ", len(agents_dict))
 print
-print "ORDER COMPLETION RATE"
-print "-------------------"
-print "Number of Completed Orders: ", num_comp_orders
-print "Percentage of Completed Orders: ", str((num_comp_orders*100)/num_of_agents) + '%'
+print("ORDER COMPLETION RATE")
+print("-------------------")
+print("Number of Completed Orders: ", num_comp_orders)
+print("Percentage of orders 100'%' fulfilled: ", str((num_comp_orders*100)/num_of_agents) + '%')
+print("Percentage of orders 50'%'-99'%' fulfilled: ")
+print("Percentage of orders 0'%'-49'%' fulfilled: ")
 print
-print "TRANSACTIONS"
-print "-------------------"
-print "Total Number of Transactions: ", num_transactions
-print "Total Dollars Transacted: ", total_dollars_transacted
-print "total_dollars_transacted/numberof_transactions (Avg transaction size): ", avg_transaction_size
-print "Avg Number of Transactions per agent: ", float(num_transactions) / float(num_of_agents)
-print 
-print "END"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print("TRANSACTIONS")
+print("-------------------")
+print("Total Number of Transactions: ", num_transactions)
+print("Estimated Total Transaction Fees: GET INFO FROM JEFF")
+print("Avg Number of Transactions per agent: ", float(num_transactions) / float(num_of_agents))
+print("Avg Total Transaction Fees paid per agent: GET INFO FROM JEFF")
+print
+print("END")
