@@ -28,7 +28,7 @@ class simulation:
                  algoParams=dict(),
                  numTypes=1, selfMatch=False,
                  success_prob=lambda: 1 if random() > 0.5 else 0,
-                 arrival_fct=lambda x: poisson.rvs(x)):
+                 arrival_fct=lambda x: x):
         """
         Initializes a simulation object
 
@@ -139,6 +139,7 @@ class simulation:
         self.perished_var = 0
         self.welfare_matrix = np.zeros((self.runs, self.time_per_run))
         self.matches_matrix = np.zeros((self.runs, self.time_per_run))
+        self.record_matches = None
         self.loss_matrix = np.zeros((self.runs, self.time_per_run))
         self.perished_matrix = np.zeros((self.runs, self.time_per_run))
 
@@ -184,12 +185,19 @@ class simulation:
                     self.matches_matrix[i, j] = len(newMarket.matched)
                     self.loss_matrix[i, j] = newMarket.loss
                     self.perished_matrix[i, j] = len(newMarket.perished)
+                # if self.logAllData is True:
+                #     self.welfare_matrix[i, j] = newMarket.welfare
+                #     self.matches_matrix[i, j] = newMarket.matched
+                #     self.loss_matrix[i, j] = newMarket.loss
+                #     self.perished_matrix[i, j] = len(newMarket.perished)
                 j += 1
             if self.logAllData is False:
                 self.welfare_matrix[i, -1:] = newMarket.welfare
                 self.matches_matrix[i, -1:] = len(newMarket.matched)
                 self.loss_matrix[i, -1:] = newMarket.loss
                 self.perished_matrix[i, -1:] = len(newMarket.perished)
+            self.record_matches = newMarket.matched
+            self.allAgents = newMarket.Agents
             i += 1
         # update simulation stats
         self.welfare = np.average(self.welfare_matrix[:, -1:])
