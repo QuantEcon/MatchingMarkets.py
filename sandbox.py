@@ -33,13 +33,6 @@ currency_dict = {}
 for i, currency in enumerate(currencies):
     currency_dict[i] = currency
 
-# # tuple represents price in USD, median transaction size in unit of coin
-# currency_dict = {}
-
-# currency_dict[0] = (11000.0, 500.0/11000.0) #BTC
-# currency_dict[1] = (460.0, 500.0/460.0) #ETH
-# currency_dict[2] = (1.0, 500.0) #USD
-
 # this will just have to be manually adjusted - only works for num_currnecies <= 3
 # can randomize or something maybe. perhaps in the future, we have a relatively uniform distribution
 p_vals = [0.05, 0.8, 0.15] #BTC and ETH, BTC and USD, ETH and USD

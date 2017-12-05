@@ -126,11 +126,8 @@ def strictlyBilateralCompatibility(agent1, agent2, cutoff):
         agent1_has, agent1_has_quant, agent1_want, agent1_want_quant = agent1.type
         agent2_has, agent2_has_quant, agent2_want, agent2_want_quant = agent2.type
 
-        # print(agent1_has_quant, agent2_want_quant)
         # if agent1_has == agent2_want and agent1_has_quant >= agent2_want_quant:
         if agent1_has == agent2_want and agent2_has == agent1_want:
-            # print("yesss")
-        # if agent1_has == agent2_want:
             return 1
         else:
             return 0
@@ -141,18 +138,13 @@ def betweenInclusive(lower, upper, number):
 def reasonableMatch(agent1, agent2, cutoff):
     agent1_has, agent1_has_quant, agent1_want, agent1_want_quant = agent1.type
     agent2_has, agent2_has_quant, agent2_want, agent2_want_quant = agent2.type
-    print("agent1 has", agent1_has_quant, "agent2 wants", agent2_want_quant)
     reasonable_quant = betweenInclusive(agent2_has_quant * (1. - cutoff), agent2_has_quant * (1. + cutoff), agent1_want_quant)
 
     agent1_preferred_price = priceComparedToMarket(*agent1.type)
     agent2_preferred_price = priceComparedToMarket(*agent2.type)
-    print("agent1 price", agent1_preferred_price, "agent2 price", agent2_preferred_price)
 
     reasonable_price = betweenInclusive(agent2_preferred_price * (1. - cutoff), agent2_preferred_price * (1. + cutoff), agent1_preferred_price)
-    # print(agent1_has_quant, agent2_want_quant)
-    # print(reasonable_quant)
-    # print(agent1_preferred_price, agent2_preferred_price)
-    # print(reasonable_price)
+
     return reasonable_quant and reasonable_price
 
 
