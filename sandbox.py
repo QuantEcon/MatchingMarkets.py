@@ -51,6 +51,7 @@ p_dict[0] = (0, 1)
 p_dict[1] = (0, 2)
 p_dict[2] = (1, 2)
 
+agentTypes = []
 # Takes any int
 def typeGen(_numtypes):
     draw_from_dist = rng.multinomial(1, p_vals).tolist()
@@ -70,6 +71,7 @@ def typeGen(_numtypes):
     desired_price = rng.normal(price_per_unit, price_per_unit * price_stddev)
     quantity_to_sell = rng.normal(median_quantity, median_quantity * quantity_stddev)
     # ID of cript you have, how much of that curr you want to cell, what currency you want, how much of the want crypto do you want
+    agentTypes.append((have, quantity_to_sell, want, quantity_to_sell * desired_price))
     return (have, quantity_to_sell, want, quantity_to_sell * desired_price)
 
 # ---------------------------------------------
@@ -103,7 +105,7 @@ def generate_agents(num_of_agents, combo_agents):
         agents = combo_agents
 
     # Populates the matching_groups dictionary
-    
+
     for agent in agents:
         agent_name, have, quantity_to_sell, want, amount = agent
         first_elm, second_elm = max(have, want), min(have, want)
@@ -235,7 +237,7 @@ def settle_workbook_simulation(data, exchange_group, num_agents):
     avg_transaction_size = 0
     if num_transactions > 0:
         avg_transaction_size = total_dollars_transacted/num_transactions
-        
+
     print("-----Settle Workbook Mechanism-----")
     print
     print("GENERAL INFO")
@@ -405,11 +407,11 @@ def combo(newsim, num_of_agents):
     for agent in unmatched:
         formatted_agent = [agent.name] + list(agent.type)
         settle_agents.append(formatted_agent)
-    
+
     num_ttc_matches = num_of_agents - len(settle_agents) # Change 100 to real number of agents
     agents_dict = generate_agents(len(settle_agents), settle_agents)
     data = settle_workbook(agents_dict)
-    settle_workbook_simulation(data, len(agents_dict), len(settle_agents)) 
+    settle_workbook_simulation(data, len(agents_dict), len(settle_agents))
     analyze_combo(num_ttc_matches,data, num_of_agents)
 
 # ------------------------------------------------------
@@ -422,7 +424,7 @@ def analyze_combo(num_ttc_matches,data, num_of_agents):
     print("-----COMBO ANALYSIS-----")
     print("Total number of Transactions:", settle_num_transactions+num_ttc_matches)
     print("Total number of completed orders:", total_completed_orders )
-    print("Percentage of completed orders: ", percent_completed_orders) 
+    print("Percentage of completed orders: ", percent_completed_orders)
     print
 
 # --------------------------------------------------------------------------------
@@ -446,7 +448,7 @@ elif len(sys.argv) == 2: # only method
 def run_exchange(method, num_of_agents):
     if method == "settle":
         agents_dict = generate_agents(num_of_agents, None)
-        settle_workbook_simulation(settle_workbook(agents_dict), len(agents_dict), num_of_agents) 
+        settle_workbook_simulation(settle_workbook(agents_dict), len(agents_dict), num_of_agents)
     elif method == "ttc": # run ttc algo on agents
         ttc(num_of_agents, True, False) # num_of_agents, show_log, do_combo
     elif method == "combo": # Run TTC then return list of unmatched agents, run settle_workbook on unmatched ttc agents
@@ -458,6 +460,3 @@ def run_exchange(method, num_of_agents):
 
 # Run the chosen simulation
 run_exchange(method, num_of_agents)
-
-
-
