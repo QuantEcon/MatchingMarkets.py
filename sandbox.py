@@ -28,7 +28,7 @@ currencies = [
 # populate dictionary for currencies
 currency_dict = {}
 for i, currency in enumerate(currencies):
-    currency_dict[i] = currency#
+    currency_dict[i] = currency
 
 # this will just have to be manually adjusted - only works for num_currnecies <= 3
 # can randomize or something maybe. perhaps in the future, we have a relatively uniform distribution
@@ -110,65 +110,69 @@ def generate_agents(num_of_agents):
 
 def match_order(offers, order):
     
-    order_name,order_quantity_to_sell, order_desired_price = order[0], order[2], order[3] 
+    order_name, order_have, order_quantity_to_sell, order_desired_price = order[0], order[1], order[2], order[3] 
     # Sort from most desired price to least desired price for the according to the order
     sorted_offers = sorted(offers, key=lambda x: x[3])
     matches = []
     completed_orders = 0
     number_of_transactions = 0
+    dollars_transacted = 0
 
     # Attempt to fulfill a given order
     for i in xrange(len(sorted_offers)):
         # Offer details
-        offer_name, _,offer_quantity_to_sell, offer_desired_price,_ = sorted_offers[i]
-        
+        offer_name, offer_have, offer_quantity_to_sell, offer_desired_price, _ = sorted_offers[i]
+    
         # Transact if the offer gives you at least a price as good as yours
         if order_desired_price <= 1/offer_desired_price:
             offer_quantity = offer_quantity_to_sell * offer_desired_price
             # Keep track of the matches made
             matches.append((order_name,offer_name))
-            
             # Order is completed
             if offer_quantity > order_quantity_to_sell: 
+                dollars_transacted += 2.0*order_quantity_to_sell*currencies[order_have][0] # change to $$
                 # Update order and offer quantities
-                order_quantity_to_sell = 0
-                sorted_offers[i][1] = (offer_quantity - order_quantity_to_sell) * (1/offer_desired_price)
+                order_quantity_to_sell = 0.0
+                sorted_offers[i][2] = (offer_quantity - order_quantity_to_sell) * (1/offer_desired_price)
                 # Keep track of number of completed orders and transactions
                 completed_orders += 1
-                number_of_transactions += 1
+                number_of_transactions += 2
                 break; 
             elif offer_quantity == order_quantity_to_sell: # order and offer are done
-                order_quantity_to_sell = 0
+                dollars_transacted += 2.0*order_quantity_to_sell*currencies[order_have][0] # change to $$
+                order_quantity_to_sell = 0.0
                 sorted_offers[i] = None # delete offer
                 # Keep track of number of completed orders and transactions
                 completed_orders += 2
-                number_of_transactions += 1
+                number_of_transactions += 2
                 break;
             elif offer_quantity < order_quantity_to_sell: # offer is done 
+                dollars_transacted += 2.0*offer_quantity*currencies[offer_have][0] # change to $$
                 # Update order quantity
                 order_quantity_to_sell = order_quantity_to_sell - offer_quantity
                 sorted_offers[i] = None # delete offer
                 # Keep track of number of completed orders and transactions
                 completed_orders += 1
-                number_of_transactions += 1
-
+                number_of_transactions += 2
     # Sort offers based on name (aka time the offer has been placed)
-    offers = sorted(filter(None, sorted_offers), key=lambda x: x[0])  
+    offers = sorted(filter(None, sorted_offers), key=lambda x: x[0])
     if order_quantity_to_sell == 0:
-        return (offers, matches, completed_orders, number_of_transactions, True) # Order is filled
+        return (offers, matches, completed_orders, number_of_transactions, True, dollars_transacted) # Order is filled
     else: 
-        return (offers, matches, completed_orders, number_of_transactions, False) # Order is not filled
+        return (offers, matches, completed_orders, number_of_transactions, False, dollars_transacted) # Order is not filled
 
 # Matches agents according to the current crypto exchange markets.
 # Returns a dict of matches. Key=Agent_name -> val= list of tuples (match_name, from, to, quantity?)
 def current_exchange(matching_groups):
     completed_orders_counter = 0
     num_transactions = 0
+    total_dollars_transacted = 0
     matches = defaultdict(list)
     # Iterate of each matching group (agents that can transact with each other)
     for key, val in matching_groups.iteritems():
         # Split agents to two groups, want X and has X
         group1, group2 = val[0], val[1]
+
         # Attempt to match all agents
         while len(group1) != 0 and len(group2) != 0:
             # Find the the oldest element from each group that has not been placed as an order yet
@@ -188,13 +192,13 @@ def current_exchange(matching_groups):
             
             if first_g1[0] > first_g2[0]: # Match g2's oldest order
                 group2[group2.index(first_g2)][4] = True
-                offers, new_matches, new_comp_orders, new_num_trans, offer_status = match_order(group1,first_g2) # (offers, order)
+                offers, new_matches, new_comp_orders, new_num_trans, offer_status, dollars_transacted = match_order(group1,first_g2) # (offers, order)
                 group1 = offers
                 if offer_status:
                     del group2[group2.index(first_g2)]
             else: # Match g1's oldest order
                 group1[group1.index(first_g1)][4] = True
-                offers, new_matches, new_comp_orders, new_num_trans, offer_status = match_order(group2,first_g1) # (offers, order)
+                offers, new_matches, new_comp_orders, new_num_trans, offer_status, dollars_transacted = match_order(group2,first_g1) # (offers, order)
                 group2 = offers
                 if offer_status:
                     del group1[group1.index(first_g1)]
@@ -202,14 +206,14 @@ def current_exchange(matching_groups):
             # Count number of transactions and filled orders
             completed_orders_counter += new_comp_orders
             num_transactions += new_num_trans
+            total_dollars_transacted += dollars_transacted
             
             # Add matched to dict
             for match in new_matches:
                 agent1, agent2 = match
                 matches[agent1].append(agent2)
                 matches[agent2].append(agent1)
-
-    return (matches, completed_orders_counter, num_transactions)
+    return (matches, completed_orders_counter, num_transactions, total_dollars_transacted)
 
 # Call to generate matches and run current crypto exchange matching algorithm
 # Returns tuple of dict of matches and number of fullfilled agents
@@ -224,7 +228,10 @@ if len(sys.argv) > 1 and int(sys.argv[1]) > 1:
     num_of_agents = int(sys.argv[1])
 
 agents_dict = generate_agents(num_of_agents)
-all_matches, num_comp_orders, num_transactions =  current_exchange(agents_dict)
+all_matches, num_comp_orders, num_transactions, total_dollars_transacted =  current_exchange(agents_dict)
+avg_transaction_size = 0
+if num_transactions > 0:
+    avg_transaction_size = total_dollars_transacted/num_transactions
 
 print "START"
 print
@@ -237,16 +244,14 @@ print
 print "ORDER COMPLETION RATE"
 print "-------------------"
 print "Number of Completed Orders: ", num_comp_orders
-print "Percentage of orders 100'%' fulfilled: ", str((num_comp_orders*100)/num_of_agents) + '%'
-print "Percentage of orders 50'%'-99'%' fulfilled: "
-print "Percentage of orders 0'%'-49'%' fulfilled: "
+print "Percentage of Completed Orders: ", str((num_comp_orders*100)/num_of_agents) + '%'
 print
 print "TRANSACTIONS"
 print "-------------------"
 print "Total Number of Transactions: ", num_transactions
-print "Estimated Total Transaction Fees: GET INFO FROM JEFF"
+print "Total Dollars Transacted: ", total_dollars_transacted
+print "total_dollars_transacted/numberof_transactions (Avg transaction size): ", avg_transaction_size
 print "Avg Number of Transactions per agent: ", float(num_transactions) / float(num_of_agents)
-print "Avg Total Transaction Fees paid per agent: GET INFO FROM JEFF"
 print 
 print "END"
 
