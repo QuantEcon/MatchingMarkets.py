@@ -64,7 +64,7 @@ def typeGen(_numtypes):
     desired_price = rng.normal(price_per_unit, price_per_unit * price_stddev)
     quantity_to_sell = rng.normal(median_quantity, median_quantity * quantity_stddev)
     # ID of cript you have, how much of that curr you want to cell, what currency you want, how much of the want crypto do you want
-    agentTypes.append((have, quantity_to_sell, want, quantity_to_sell * desired_price))
+    agentTypes.append([have, quantity_to_sell, want, quantity_to_sell * desired_price])
     return (have, quantity_to_sell, want, quantity_to_sell * desired_price)
 
 # ---------------------------------------------
@@ -347,7 +347,7 @@ def totalValueMatchUtility(agent1, agent2, cutoff):
 # ------------------------------------------------------
 # SECTION III: TTC Simulation
 
-def ttc(num_of_agents, log_status, call_combo):
+def ttc(num_of_agents, log_status, call_combo, compatFct): # combo -> basicNoBilateralCompatibility, ttc -> basicCompatibility
     newsim = mm.simulation(runs= 1, time_per_run=1, max_agents=10000,
                             logAllData=True,
                            arrival_rate=num_of_agents, success_prob=lambda: 1, # Change to input variable (Max 1,000)
@@ -355,9 +355,8 @@ def ttc(num_of_agents, log_status, call_combo):
                            algorithm=mm.TTC,
                            typeGenerator=typeGen,
                            matchUtilFct=basicMatchUtility,
-                           compatFct=basicNoBilateralCompatibility,
+                           compatFct=compatFct,
                            crit_input=1000, numTypes=5)
-
     # newsim.verbose=True
     newsim.run()
     if log_status == True:
@@ -438,16 +437,30 @@ if len(sys.argv) == 3: # method and num_of_agents
 elif len(sys.argv) == 2: # only method
     method = sys.argv[1]
 
+def run_race(num_of_agents):
+    # Combo
+    print("-----------1.RACE: COMBO MECHANISM-----------")
+    ttc(num_of_agents, True, True, basicNoBilateralCompatibility) # num_of_agents, show_log, do_combo
+     
+    # Settle
+    print("-----------2.RACE: SETTLE MECHANISM-----------")
+    for i in xrange(len(agentTypes)):
+        agentTypes[i] = [i] + agentTypes[i]
+
+    agents_dict = generate_agents(num_of_agents, agentTypes)
+    settle_workbook_simulation(settle_workbook(agents_dict), len(agents_dict), num_of_agents)
+
 def run_exchange(method, num_of_agents):
     if method == "settle":
         agents_dict = generate_agents(num_of_agents, None)
         settle_workbook_simulation(settle_workbook(agents_dict), len(agents_dict), num_of_agents)
     elif method == "ttc": # run ttc algo on agents
-        ttc(num_of_agents, True, False) # num_of_agents, show_log, do_combo
+        ttc(num_of_agents, True, False, basicCompatibility) # num_of_agents, show_log, do_combo
     elif method == "combo": # Run TTC then return list of unmatched agents, run settle_workbook on unmatched ttc agents
-        ttc(num_of_agents, True, True) # num_of_agents, show_log, do_combo
+        print("-----------COMBO MECHANISM-----------")
+        ttc(num_of_agents, True, True, basicNoBilateralCompatibility) # num_of_agents, show_log, do_combo
     elif method == "race": # Runs ttc, settle_workbook, and combo on the same set of agents
-        print("RAN RACE")
+        run_race(num_of_agents)
     else:
         print("You Entered Incorrect Arguments. Please enter the method (settle, ttc, combo, race) followed by the number of agents (0-1000)")
 
