@@ -410,8 +410,6 @@ def combo(newsim, num_of_agents):
     agents_dict = generate_agents(len(settle_agents), settle_agents)
     data = settle_workbook(agents_dict)
     settle_workbook_simulation(data, len(agents_dict), len(settle_agents)) 
-    # def settle_workbook_simulation(data, exchange_group, num_agents):
-    # all_matches, num_comp_orders, num_transactions, total_dollars_transacted =  data
     analyze_combo(num_ttc_matches,data, num_of_agents)
 
 # ------------------------------------------------------
@@ -449,28 +447,17 @@ def run_exchange(method, num_of_agents):
     if method == "settle":
         agents_dict = generate_agents(num_of_agents, None)
         settle_workbook_simulation(settle_workbook(agents_dict), len(agents_dict), num_of_agents) 
-    elif method == "ttc":
+    elif method == "ttc": # run ttc algo on agents
         ttc(num_of_agents, True, False) # num_of_agents, show_log, do_combo
-    elif method == "combo":
+    elif method == "combo": # Run TTC then return list of unmatched agents, run settle_workbook on unmatched ttc agents
         ttc(num_of_agents, True, True) # num_of_agents, show_log, do_combo
-    elif method == "race":
+    elif method == "race": # Runs ttc, settle_workbook, and combo on the same set of agents
         print("RAN RACE")
     else:
         print("You Entered Incorrect Arguments. Please enter the method (settle, ttc, combo, race) followed by the number of agents (0-1000)")
 
 # Run the chosen simulation
 run_exchange(method, num_of_agents)
-
-
-# if len(sys.argv) > 1 and int(sys.argv[1]) > 1:
-#     num_of_agents = int(sys.argv[1])
-
-# # agents_dict = generate_agents(num_of_agents)
-# # Run settle_workbook mechanism
-# all_matches, num_comp_orders, num_transactions, total_dollars_transacted =  settle_workbook(agents_dict)
-
-# settle_workbook_simulation(settle_workbook(agents_dict)) 
-
 
 
 
