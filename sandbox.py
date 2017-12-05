@@ -18,8 +18,8 @@ num_currencies = 3
 # vary second parameter in order to experiment with different trade sizes
 currencies = [
     (1.0, 500), #USD
-    (11000.0, 0.057), #BTC
-    (460.0, 1.0), #ETH
+    (11000.0, 500.0/11000.), #BTC
+    (460.0, 500.0/460.0), #ETH
     (3000, 0.25), #random middle-price currency
     (100, 5), #low price
     (10, 100) #even lower price
@@ -86,7 +86,7 @@ def generate_agents(num_of_agents):
 
     # Creates a list of agents
     for i in xrange(num_of_agents):
-        agent_name = i # creation time, add expiration date!!!
+        agent_name = i # creation time
         have, quantity_to_sell, want, priced_amount = typeGen(1)
         agents.append([agent_name, have, quantity_to_sell, want, priced_amount])
 
@@ -97,13 +97,12 @@ def generate_agents(num_of_agents):
         
         # Tuple of -> Name, have, quantity_to_sell, want, desired_price, indicator of where agent has been treated as an order or not
         agent_obj = [agent_name, have, quantity_to_sell, amount/quantity_to_sell, False] 
-        
+        # Append agent to correct position in the matching_groups dict
         if (first_elm, second_elm) in matching_groups:
             sort_order_in_dict(matching_groups[(first_elm, second_elm)],agent_obj, have, want)
         else: 
             matching_groups[(first_elm, second_elm)] = [[],[]] # Two separate groups lists, one for each group of orders that have/want the same currencies
             sort_order_in_dict(matching_groups[(first_elm, second_elm)],agent_obj, have, want)
-
     return matching_groups
 
 # SECTION II: Matching Agents
@@ -114,9 +113,7 @@ def match_order(offers, order):
     # Sort from most desired price to least desired price for the according to the order
     sorted_offers = sorted(offers, key=lambda x: x[3])
     matches = []
-    completed_orders = 0
-    number_of_transactions = 0
-    dollars_transacted = 0
+    completed_orders, number_of_transactions, dollars_transacted = 0, 0, 0
 
     # Attempt to fulfill a given order
     for i in xrange(len(sorted_offers)):
@@ -125,6 +122,7 @@ def match_order(offers, order):
     
         # Transact if the offer gives you at least a price as good as yours
         if order_desired_price <= 1/offer_desired_price:
+            # Offer quantity in terms of the order currency
             offer_quantity = offer_quantity_to_sell * offer_desired_price
             # Keep track of the matches made
             matches.append((order_name,offer_name))
@@ -147,7 +145,7 @@ def match_order(offers, order):
                 number_of_transactions += 2
                 break;
             elif offer_quantity < order_quantity_to_sell: # offer is done 
-                dollars_transacted += 2.0*offer_quantity*currencies[offer_have][0] # change to $$
+                dollars_transacted += 2.0*offer_quantity_to_sell*currencies[offer_have][0] # change to $$
                 # Update order quantity
                 order_quantity_to_sell = order_quantity_to_sell - offer_quantity
                 sorted_offers[i] = None # delete offer
@@ -163,7 +161,7 @@ def match_order(offers, order):
 
 # Matches agents according to the current crypto exchange markets.
 # Returns a dict of matches. Key=Agent_name -> val= list of tuples (match_name, from, to, quantity?)
-def current_exchange(matching_groups):
+def settle_workbook(matching_groups):
     completed_orders_counter = 0
     num_transactions = 0
     total_dollars_transacted = 0
@@ -217,7 +215,7 @@ def current_exchange(matching_groups):
 
 # Call to generate matches and run current crypto exchange matching algorithm
 # Returns tuple of dict of matches and number of fullfilled agents
-# current_exchange(generate_agents(100))
+# settle_workbook(generate_agents(100))
 
 # SECTION III: Data Analysis
 
@@ -228,7 +226,7 @@ if len(sys.argv) > 1 and int(sys.argv[1]) > 1:
     num_of_agents = int(sys.argv[1])
 
 agents_dict = generate_agents(num_of_agents)
-all_matches, num_comp_orders, num_transactions, total_dollars_transacted =  current_exchange(agents_dict)
+all_matches, num_comp_orders, num_transactions, total_dollars_transacted =  settle_workbook(agents_dict)
 avg_transaction_size = 0
 if num_transactions > 0:
     avg_transaction_size = total_dollars_transacted/num_transactions
