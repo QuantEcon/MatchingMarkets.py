@@ -44,9 +44,17 @@ p_dict[0] = (0, 1)
 p_dict[1] = (0, 2)
 p_dict[2] = (1, 2)
 
+currentAgent = 0
+
 agentTypes = []
 # Takes any int
 def typeGen(_numtypes):
+    global num_of_agents
+    global currentAgent
+    if len(agentTypes) == num_of_agents:
+        to_get = currentAgent
+        currentAgent += 1
+        return agentTypes[to_get]
     draw_from_dist = rng.multinomial(1, p_vals).tolist()
     pair_index = draw_from_dist.index(1)
 
@@ -90,7 +98,7 @@ def generate_agents(num_of_agents, combo_agents):
 
     if combo_agents == None:
         # Creates a list of agents
-        for i in xrange(num_of_agents):
+        for i in range(num_of_agents):
             agent_name = i # creation time
             have, quantity_to_sell, want, priced_amount = typeGen(1)
             agents.append([agent_name, have, quantity_to_sell, want, priced_amount])
@@ -125,7 +133,7 @@ def match_order(offers, order):
     completed_orders, number_of_transactions, dollars_transacted = 0, 0, 0
 
     # Attempt to fulfill a given order
-    for i in xrange(len(sorted_offers)):
+    for i in range(len(sorted_offers)):
         # Offer details
         offer_name, offer_have, offer_quantity_to_sell, offer_desired_price, _ = sorted_offers[i]
 
@@ -176,7 +184,7 @@ def settle_workbook(matching_groups):
     total_dollars_transacted = 0
     matches = defaultdict(list)
     # Iterate of each matching group (agents that can transact with each other)
-    for key, val in matching_groups.iteritems():
+    for key, val in matching_groups.items():
         # Split agents to two groups, want X and has X
         group1, group2 = val[0], val[1]
 
@@ -233,22 +241,17 @@ def settle_workbook_simulation(data, exchange_group, num_agents):
 
     print("-----Settle Workbook Mechanism-----")
     print
-    print("GENERAL INFO")
-    print("-------------------")
-    print("Number of Orders: ", num_agents)
-    print("Number of Currencies being exchanged: ", num_currencies)
-    print("Number of currency exchange groups: ", exchange_group)
-    print
-    print("ORDER COMPLETION RATE")
-    print("-------------------")
-    print("Number of Completed Orders: ", num_comp_orders)
-    print("Percentage of orders 100'%' fulfilled: ", str((num_comp_orders*100)/num_agents) + '%')
-    print
-    print("TRANSACTIONS")
-    print("-------------------")
-    print("Total Number of Transactions: ", num_transactions)
-    print("Avg Transaction Size in USD:", avg_transaction_size)
-    print("Avg Number of Transactions per agent: ", float(num_transactions) / float(num_agents))
+    # print("GENERAL INFO")
+    # print("-------------------")
+    # print("Number of Orders: ", num_agents)
+    # print("Number of Currencies being exchanged: ", num_currencies)
+    # print("Number of currency exchange groups: ", exchange_group)
+    # print
+    print("     Transactions: ", num_transactions)
+    print("     Completed Orders: ", num_comp_orders)
+    print("     Percentage of completed orders: ", str(int((num_comp_orders*100)/num_agents)) + '%')
+    print("     Avg Transaction Value(USD):", '$'+str(round(avg_transaction_size, 2)))
+    print("     Avg Transactions : ", str(round(float(num_transactions) / float(num_agents), 2))+'/agent')
     print
 
 # ---------------------------------------------
@@ -295,7 +298,7 @@ def basicNoBilateralCompatibility(agent1, agent2, cutoff):
     agent2_has, agent2_has_quant, agent2_want, agent2_want_quant = agent2.type
 
     # print(agent1_has_quant, agent2_want_quant)
-    if agent1_want == agent2_has and agent1_has != agent2_want and reasonableMatch(agent1, agent2, 0.15):
+    if agent1_want == agent2_has and agent1_has != agent2_want and reasonableMatch(agent1, agent2, 0.03):
         return 1
     else:
         return 0
@@ -306,7 +309,7 @@ def basicCompatibility(agent1, agent2, cutoff):
     agent2_has, agent2_has_quant, agent2_want, agent2_want_quant = agent2.type
 
     # print(agent1_has_quant, agent2_want_quant)
-    if agent1_want == agent2_has and reasonableMatch(agent1, agent2, 0.1):
+    if agent1_want == agent2_has and reasonableMatch(agent1, agent2, 0.03):
         return 1
     else:
         return 0
@@ -360,17 +363,21 @@ def ttc(num_of_agents, log_status, call_combo, compatFct): # combo -> basicNoBil
     # newsim.verbose=True
     newsim.run()
     if log_status == True:
-        ttc_data(newsim)
+        ttc_data(newsim, num_of_agents)
     if call_combo == True:
         combo(newsim, num_of_agents)
 
 # ------------------------------------------------------
 # SECTION IV: TTC Data Analytics
 
-def ttc_data(newsim):
+def ttc_data(newsim, num_of_agents):
     print
-    print("-----TTC Mechanism-----")
-    print(newsim.stats())
+    print("-----TTC Mechanism-----------------")
+    print("     Transactions: ", int(newsim.stats()))
+    print("     Completed Orders: ", int(newsim.stats()))
+    print("     Percent of Completed Orders: ", str(int((100.0*newsim.stats())/num_of_agents))+'%')
+    
+
 
 # --------------------------------------------------------------------------------
 # Crypto Exchange: Crypto Exchange using both TTC and Workbook Settling Mechanism
@@ -413,10 +420,10 @@ def analyze_combo(num_ttc_matches,data, num_of_agents):
     total_completed_orders = num_ttc_matches+settle_num_comp_orders
     percent_completed_orders = (100.0*total_completed_orders)/num_of_agents
     print
-    print("-----COMBO ANALYSIS-----")
-    print("Total number of Transactions:", settle_num_transactions+num_ttc_matches)
-    print("Total number of completed orders:", total_completed_orders )
-    print("Percentage of completed orders: ", percent_completed_orders)
+    print("-----General Combo Analysis--------")
+    print("     Transactions:", settle_num_transactions+num_ttc_matches)
+    print("     Completed orders:", total_completed_orders )
+    print("     Percent of completed orders: ", str(round(percent_completed_orders, 2))+'%')
     print
 
 # --------------------------------------------------------------------------------
@@ -438,17 +445,25 @@ elif len(sys.argv) == 2: # only method
     method = sys.argv[1]
 
 def run_race(num_of_agents):
+    global currentAgent
     # Combo
-    print("-----------1.RACE: COMBO MECHANISM-----------")
+    print("1.RACE: COMBO MECHANISM------------")
     ttc(num_of_agents, True, True, basicNoBilateralCompatibility) # num_of_agents, show_log, do_combo
-     
+    
+    currentAgent = 0
     # Settle
-    print("-----------2.RACE: SETTLE MECHANISM-----------")
-    for i in xrange(len(agentTypes)):
-        agentTypes[i] = [i] + agentTypes[i]
+    print("2.RACE: SETTLE MECHANISM-----------")
+    agents = []
+    for i in range(len(agentTypes)):
+        agents.append([i] + agentTypes[i])
 
-    agents_dict = generate_agents(num_of_agents, agentTypes)
+    agents_dict = generate_agents(num_of_agents, agents)
     settle_workbook_simulation(settle_workbook(agents_dict), len(agents_dict), num_of_agents)
+
+    print("3.RACE: TTC MECHANISM-------------")
+    currentAgent = 0
+    # TTC
+    ttc(num_of_agents, True, False, basicCompatibility) # num_of_agents, show_log, do_combo
 
 def run_exchange(method, num_of_agents):
     if method == "settle":

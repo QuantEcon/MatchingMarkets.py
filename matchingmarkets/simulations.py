@@ -221,19 +221,20 @@ class simulation:
         """
         Prints market statistics
         """
-        print("Simulation Results")
-        print(self.time_per_run, " periods")
-        print(self.runs, " runs")
-        print("Stat\t", " value\t", "(std dev)")
-        print("==================================")
-        print("Welfare:  ", self.welfare, "(",
-              "%.4f" % np.sqrt(self.welfare_var), ")")
-        print("matches:  ", self.matches, " (",
-              "%.4f" % np.sqrt(self.matches_var), ")")
-        print("perished: ", self.perished, " (",
-              "%.4f" % np.sqrt(self.perished_var), ")")
-        print("loss%:    ", "%.4f" % self.loss, " (",
-              "%.4f" % np.sqrt(self.loss_var), ")")
+        # print("Simulation Results")
+        # print(self.time_per_run, " periods")
+        # print(self.runs, " runs")
+        # print("Stat\t", " value\t", "(std dev)")
+        # print("==================================")
+        # print("Welfare:  ", self.welfare, "(",
+        #       "%.4f" % np.sqrt(self.welfare_var), ")")
+        # print("matches:  ", self.matches, " (",
+        #       "%.4f" % np.sqrt(self.matches_var), ")")
+        # print("perished: ", self.perished, " (",
+        #       "%.4f" % np.sqrt(self.perished_var), ")")
+        # print("loss%:    ", "%.4f" % self.loss, " (",
+        #       "%.4f" % np.sqrt(self.loss_var), ")")
+        return self.matches
 
     def graph(self, period=None, plot_time=0.35):
         """
