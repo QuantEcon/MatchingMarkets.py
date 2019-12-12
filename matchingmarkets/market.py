@@ -8,7 +8,12 @@ from matchingmarkets.generators.basic import *
 from matchingmarkets.algorithms.basic import *
 
 import matplotlib
-matplotlib.use('qt5agg')
+try:
+    matplotlib.use('qt5agg')
+    CANT_PLOT = False
+except ImportError as ie:
+    CANT_PLOT = True
+    print(f"Can't import plotting backend: \n {ie}")
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
@@ -90,6 +95,9 @@ class Market:
             else:
                 self.Graph = nx.DiGraph()
         if self.plots_on:
+            if CANT_PLOT:
+                print("WARNING: Cant plot dur to qt5agg backend import error")
+                self.plots_on = False
             plt.ion()  # Interactive plotting
             self.has_graph = True
             self.Graph = nx.DiGraph()
