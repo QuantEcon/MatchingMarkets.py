@@ -170,3 +170,8 @@ When creating the **simulation** class, you can pass the following parameters:
                 
             verbose: bool
                 print on relevant actions in update
+
+
+### TODO:
+
+replace plotting animations with [Celluloid](https://github.com/jwkvam/celluloid)
