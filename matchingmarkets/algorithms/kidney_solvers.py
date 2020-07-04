@@ -6,6 +6,7 @@ NOT IMPLEMENTED YET
 NOT IMPLEMENTED YET
 NOT IMPLEMENTED YET
 """
+# flake8: noaq
 
 
 ##########################################
