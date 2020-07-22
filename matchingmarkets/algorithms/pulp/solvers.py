@@ -32,7 +32,7 @@ the current version
 
 import os
 import sys
-from time import clock
+from time import perf_counter
 try:
     import configparser
 except ImportError:
@@ -369,7 +369,7 @@ class GLPK_CMD(LpSolver_CMD):
         if not self.mip: proc.append('--nomip')
         proc.extend(self.options)
 
-        self.solution_time = clock()
+        self.solution_time = perf_counter()
         if not self.msg:
             proc[0] = self.path
             pipe = open(os.devnull, 'w')
@@ -390,7 +390,7 @@ class GLPK_CMD(LpSolver_CMD):
                 rc = os.spawnv(os.P_WAIT, self.executable(self.path), proc)
             if rc == 127:
                 raise PulpSolverError("PuLP: Error while trying to execute "+self.path)
-        self.solution_time += clock()
+        self.solution_time += perf_counter()
 
         if not os.path.exists(tmpSol):
             raise PulpSolverError("PuLP: Error while executing "+self.path)
@@ -779,7 +779,7 @@ try:
             """Solves the problem with cplex
             """
             #solve the problem
-            self.cplexTime = -clock()
+            self.cplexTime = -perf_counter()
             if isMIP and self.mip:
                 status= CPLEX_DLL.lib.CPXmipopt(self.env, self.hprob)
                 if status != 0:
@@ -790,7 +790,7 @@ try:
                 if status != 0:
                     raise PulpSolverError("Error in CPXlpopt status="
                                             + str(status))
-            self.cplexTime += clock()
+            self.cplexTime += perf_counter()
 
         def actualSolve(self, lp):
             """Solve a well formulated lp problem"""
@@ -1168,9 +1168,9 @@ else:
             """Solves the problem with cplex
             """
             #solve the problem
-            self.solveTime = -clock()
+            self.solveTime = -perf_counter()
             self.solverModel.solve()
-            self.solveTime += clock()
+            self.solveTime += perf_counter()
 
         def findSolutionValues(self, lp):
             lp.cplex_status = lp.solverModel.solution.get_status()
@@ -1696,9 +1696,9 @@ class COINMP_DLL(LpSolver):
                 os.close(1)
                 if os.dup(tempfile.fileno()) != 1:
                     raise PulpSolverError("couldn't redirect stdout - dup() error")
-            self.coinTime = -clock()
+            self.coinTime = -perf_counter()
             self.lib.CoinOptimizeProblem(hProb, 0);
-            self.coinTime += clock()
+            self.coinTime += perf_counter()
 
             if self.msg == 0:
                 #reopen stdout
@@ -1855,9 +1855,9 @@ class GUROBI(LpSolver):
             """Solves the problem with gurobi
             """
             #solve the problem
-            self.solveTime = -clock()
+            self.solveTime = -perf_counter()
             lp.solverModel.optimize(callback = callback)
-            self.solveTime += clock()
+            self.solveTime += perf_counter()
 
         def buildSolverModel(self, lp):
             """
@@ -2119,14 +2119,14 @@ class PYGLPK(LpSolver):
         def callSolver(self, lp, callback = None):
             """Solves the problem with glpk
             """
-            self.solveTime = -clock()
+            self.solveTime = -perf_counter()
             glpk.glp_adv_basis(lp.solverModel, 0)
             glpk.glp_simplex(lp.solverModel, None)
             if self.mip and self.hasMIPConstraints(lp.solverModel):
                 status = glpk.glp_get_status(lp.solverModel)
                 if status in (glpk.GLP_OPT, glpk.GLP_UNDEF, glpk.GLP_FEAS):
                     glpk.glp_intopt(lp.solverModel, None)
-            self.solveTime += clock()
+            self.solveTime += perf_counter()
 
         def buildSolverModel(self, lp):
             """
@@ -2334,9 +2334,9 @@ class YAPOSIB(LpSolver):
                 os.close(1)
                 if os.dup(tempfile.fileno()) != 1:
                     raise PulpSolverError("couldn't redirect stdout - dup() error")
-            self.solveTime = -clock()
+            self.solveTime = -perf_counter()
             lp.solverModel.solve(self.mip)
-            self.solveTime += clock()
+            self.solveTime += perf_counter()
             if self.msg == 0:
                 #reopen stdout
                 os.close(1)
@@ -2635,9 +2635,9 @@ class SCIP_CMD(LpSolver_CMD):
         if not self.msg:
             proc.append('-q')
 
-        self.solution_time = clock()
+        self.solution_time = perf_counter()
         subprocess.check_call(proc, stdout=sys.stdout, stderr=sys.stderr)
-        self.solution_time += clock()
+        self.solution_time += perf_counter()
 
         if not os.path.exists(tmpSol):
             raise PulpSolverError("PuLP: Error while executing "+self.path)
