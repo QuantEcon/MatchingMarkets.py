@@ -391,10 +391,7 @@ class Market:
                           for node in self.Graph.nodes()]
             # Draw
             nx.draw_networkx_edges(self.Graph, self.graph_pos,
-                                   edgelist=edge_list, font_size=7.5,
-                                   labels=self.graph_labels,
-                                   font_weight='bold', width=2,
-                                   node_color=new_colors,
+                                   edgelist=edge_list, width=2,
                                    edge_color=edge_colors, node_size=200)
             plt.axis('off')
             plt.plot()
