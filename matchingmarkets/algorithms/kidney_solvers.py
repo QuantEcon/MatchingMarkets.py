@@ -6,6 +6,7 @@ NOT IMPLEMENTED YET
 NOT IMPLEMENTED YET
 NOT IMPLEMENTED YET
 """
+# flake8: noqa
 
 
 ##########################################
@@ -81,7 +82,7 @@ def add_unlimited_vars_and_constraints(Market, ndds, m):
         ndd_edge_vars = []
         for e in ndd.edges:
             edge_name = str(str(e[0].type) + "," + str(e[1].type))
-            edge_var = LpVariable(edge_name, cat='Binary')
+            edge_var = pulp.LpVariable(edge_name, cat='Binary')
             m += edge_var
             e.edge_var = edge_var
             ndd_edge_vars.append(edge_var)
@@ -91,7 +92,7 @@ def add_unlimited_vars_and_constraints(Market, ndds, m):
     # Add pair->pair edge variables
     for e in Market.Graph.edges(directed_donors):
         edge_name = str(str(e[0].type) + "," + str(e[1].type))
-        edge_var = LpVariable(edge_name, cat='Binary')
+        edge_var = pulp.LpVariable(edge_name, cat='Binary')
         m += edge_var
         # Add constraint variables to keep track
         Market.edge_vars.append(edge_var)
@@ -119,7 +120,7 @@ def optimise_uuef(cfg):
     """
     assert Market.acceptable_prob == 1, "uucef  does not support failure-aware matching."
 
-    m = LpProblem("uucef", LpMaximize)
+    m = pulp.LpProblem("uucef", pulp.LpMaximize)
 
     add_unlimited_vars_and_constraints(cfg.digraph, cfg.ndds, m)
 
