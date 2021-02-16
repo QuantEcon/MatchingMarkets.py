@@ -99,10 +99,7 @@ def gale_shapley(Mrkt, Agents, verbose=False,
     while len(matches) != len(men) and len(matches) != len(fem):
         iter_num += 1
         if verbose:
-            print("\n\n-------------------\G-S Iteration ",
-                  iter_num, "\n\tTo Match males:", to_match_names_m,
-                  "\n\tFemales: ",
-                  to_match_names_f)
+            print("\n\n-------------------\G-S Iteration ", iter_num)
 
         # dict of proposals from men to women
         # for this iteration
